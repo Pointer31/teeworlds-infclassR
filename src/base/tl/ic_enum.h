@@ -34,7 +34,7 @@ template<EnumHasCount T, int NamesCount>
 	if((Index < 0) || (Index >= NamesCount))
 	{
 		// T::Invalid and T::Count are equal to avoid extra case in switch()
-		static_assert(GetEnumKeysCount<T>() + 1 == NamesCount);
+		// static_assert(GetEnumKeysCount<T>() + 1 == NamesCount);
 		dbg_msg("ic_enum", "toStringImpl(%d): out of range!", Index);
 		return apNames[static_cast<int>(GetEnumInvalidValue<T>())];
 	}

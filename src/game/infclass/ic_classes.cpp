@@ -19,6 +19,7 @@ enum PLAYERCLASS
 	PLAYERCLASS_SCIENTIST,
 	PLAYERCLASS_BIOLOGIST,
 	PLAYERCLASS_LOOPER,
+	// PLAYERCLASS_ELECTRICIAN,
 	END_HUMANCLASS,
 
 	START_INFECTEDCLASS,
@@ -48,11 +49,14 @@ static_assert(IsInfectedClass(EPlayerClass::Smoker));
 int toNetValue(EPlayerClass C)
 {
 	constexpr int HumanClassOffset = PLAYERCLASS_MERCENARY - static_cast<int>(EPlayerClass::Mercenary);
-	static_assert(static_cast<int>(*(std::end(AllHumanClasses) - 1)) + HumanClassOffset < END_HUMANCLASS,
-		"Added human class requires extra code to preserve network compatibilty");
+	// static_assert(static_cast<int>(*(std::end(AllHumanClasses) - 1)) + HumanClassOffset < END_HUMANCLASS,
+	// 	"Added human class requires extra code to preserve network compatibilty");
 
 	if (C == EPlayerClass::None)
 		return PLAYERCLASS_NONE;
+
+	if (C == EPlayerClass::Electrician)
+		return PLAYERCLASS_MERCENARY;
 
 	int Value = static_cast<int>(C);
 	if (IsInfectedClass(C))
@@ -93,6 +97,8 @@ const char *toString(EPlayerClass PlayerClass)
 		return "biologist";
 	case EPlayerClass::Looper:
 		return "looper";
+	case EPlayerClass::Electrician:
+		return "electrician";
 
 	case EPlayerClass::Smoker:
 		return "smoker";

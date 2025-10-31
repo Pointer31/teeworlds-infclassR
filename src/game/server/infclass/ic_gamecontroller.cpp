@@ -1468,6 +1468,8 @@ const char *CIcGameController::GetClassPluralName(EPlayerClass PlayerClass)
 		return "biologists";
 	case EPlayerClass::Looper:
 		return "loopers";
+	case EPlayerClass::Electrician:
+		return "electrics";
 
 	case EPlayerClass::Smoker:
 		return "smokers";
@@ -1529,6 +1531,8 @@ const char *CIcGameController::GetClassDisplayName(EPlayerClass PlayerClass, con
 		return _("Biologist");
 	case EPlayerClass::Looper:
 		return _("Looper");
+	case EPlayerClass::Electrician:
+		return _("Electric");
 
 	case EPlayerClass::Smoker:
 		return _("Smoker");
@@ -1597,7 +1601,6 @@ const char *CIcGameController::GetClassDisplayNameForKilledBy(EPlayerClass Playe
 		return Article == ETextArticle::Indefinite ? _C_NOOP("For 'Killed by <>'", "a Tank") : _C_NOOP("For 'Killed by <>'", "the Tank");
 	case EPlayerClass::Spitter:
 		return Article == ETextArticle::Indefinite ? _C_NOOP("For 'Killed by <>'", "a Spitter") : _C_NOOP("For 'Killed by <>'", "the Spitter");
-
 	default:
 		break;
 	}
@@ -1638,6 +1641,8 @@ const char *CIcGameController::GetClassPluralDisplayName(EPlayerClass PlayerClas
 		return _("Biologists");
 	case EPlayerClass::Looper:
 		return _("Loopers");
+	case EPlayerClass::Electrician:
+		return _("Electricians");
 
 	case EPlayerClass::Smoker:
 		return _("Smokers");
@@ -1712,6 +1717,9 @@ EPlayerClass CIcGameController::MenuClassToPlayerClass(int MenuClass)
 			break;
 		case CMapConverter::MENUCLASS_LOOPER:
 			PlayerClass = EPlayerClass::Looper;
+			break;
+		case CMapConverter::MENUCLASS_ELECTRICIAN:
+			PlayerClass = EPlayerClass::Electrician;
 			break;
 	}
 
@@ -6901,6 +6909,11 @@ bool CIcGameController::GetClassHelpPage(dynamic_string *pOutput, const char *pL
 							 " low-range laser rifle with a high fire rate."));
 		AddLine(_C("Looper", "They can also jump two times in the air."));
 		break;
+	case EPlayerClass::Electrician:
+		AddLine(_C("Electrician", "Electrician"
+							 "Electrician text"));
+		AddLine(_C("Electrician", "Electrician text"));
+		break;
 	case EPlayerClass::Smoker:
 		AddLine(_C("Smoker", "Smoker has a powerful hook that hurts humans and sucks their blood,"
 							 " restoring the Smoker's health."));
@@ -8252,6 +8265,8 @@ bool CIcGameController::GetPlayerClassEnabled(EPlayerClass PlayerClass) const
 		return Config()->m_InfEnableSniper;
 	case EPlayerClass::Looper:
 		return Config()->m_InfEnableLooper;
+	case EPlayerClass::Electrician:
+		return Config()->m_InfEnableElectrician;
 	default:
 		break;
 	}

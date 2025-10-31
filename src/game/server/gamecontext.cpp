@@ -4016,6 +4016,11 @@ void CGameContext::PrivateMessage(const char* pStr, int ClientId, bool TeamChat)
 				CheckClass = EPlayerClass::Ninja;
 				str_copy(aChatTitle, "ninja");
 			}
+			else if(str_comp(aNameFound, "!electrician") == 0 && m_apPlayers[ClientId] && m_apPlayers[ClientId]->GetCharacter())
+			{
+				CheckClass = EPlayerClass::Electrician;
+				str_copy(aChatTitle, "electrician");
+			}
 			else if(str_comp(aNameFound, "!mercenary") == 0 && m_apPlayers[ClientId] && m_apPlayers[ClientId]->GetCharacter())
 			{
 				CheckClass = EPlayerClass::Mercenary;

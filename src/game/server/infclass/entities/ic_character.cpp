@@ -1828,6 +1828,8 @@ EInfclassWeapon CIcCharacter::GetInfWeaponId(int WID) const
 			return EInfclassWeapon::HERO_SHOTGUN;
 		case EPlayerClass::Biologist:
 			return EInfclassWeapon::RICOCHET_SHOTGUN;
+		case EPlayerClass::Electrician:
+			return EInfclassWeapon::HERO_SHOTGUN;
 		default:
 			return EInfclassWeapon::SHOTGUN;
 		}
@@ -1854,6 +1856,8 @@ EInfclassWeapon CIcCharacter::GetInfWeaponId(int WID) const
 			return EInfclassWeapon::LOOPER_GRENADE;
 		case EPlayerClass::Spitter:
 			return EInfclassWeapon::INFECTED_GRENADE;
+		case EPlayerClass::Electrician:
+			return EInfclassWeapon::BIOLOGIST_GRENADE;
 		default:
 			return EInfclassWeapon::GRENADE;
 		}
@@ -1880,6 +1884,8 @@ EInfclassWeapon CIcCharacter::GetInfWeaponId(int WID) const
 			return g_Config.m_InfEnableTranquilizerRifle ? EInfclassWeapon::TRANQUILIZER_RIFLE : EInfclassWeapon::MEDIC_LASER;
 		case EPlayerClass::Mercenary:
 			return EInfclassWeapon::MERCENARY_UPGRADE_LASER;
+		case EPlayerClass::Electrician:
+			return EInfclassWeapon::TRANQUILIZER_RIFLE;
 		default:
 			return EInfclassWeapon::LASER;
 		}

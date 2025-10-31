@@ -130,6 +130,13 @@ bool CInfClassHuman::SetupSkin(const CSkinContext &Context, CWeakSkinInfo *pOutp
 		pOutput->ColorBody = 255;
 		pOutput->ColorFeet = 0;
 		break;
+	case EPlayerClass::Electrician:
+		pOutput->pSkinName = "cammo";
+		pOutput->UseCustomColor = 1;
+		pOutput->ColorBody = 12713862;
+		// pOutput->ColorBody = 8716159;
+		pOutput->ColorFeet = 0;
+		break;
 	case EPlayerClass::None:
 		pOutput->pSkinName = "default";
 		pOutput->UseCustomColor = 0;
@@ -1340,6 +1347,14 @@ void CInfClassHuman::GiveClassAttributes()
 		m_pCharacter->GiveWeapon(WEAPON_GUN, -1);
 		m_pCharacter->GiveWeapon(WEAPON_LASER, -1);
 		m_pCharacter->SetActiveWeapon(WEAPON_LASER);
+		break;
+	case EPlayerClass::Electrician:
+		m_pCharacter->GiveWeapon(WEAPON_HAMMER, -1);
+		m_pCharacter->GiveWeapon(WEAPON_GUN, -1);
+		m_pCharacter->GiveWeapon(WEAPON_SHOTGUN, -1);
+		m_pCharacter->GiveWeapon(WEAPON_GRENADE, -1);
+		m_pCharacter->GiveWeapon(WEAPON_LASER, -1);
+		m_pCharacter->SetActiveWeapon(WEAPON_HAMMER);
 		break;
 	case EPlayerClass::Soldier:
 		m_pCharacter->GiveWeapon(WEAPON_HAMMER, -1);

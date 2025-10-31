@@ -139,6 +139,7 @@ MACRO_CONFIG_INT(InfEnableSniper, inf_enable_sniper, 1, 0, 1, CFGFLAG_SERVER, "M
 MACRO_CONFIG_INT(InfEnableNinja, inf_enable_ninja, 1, 0, 1, CFGFLAG_SERVER, "Makes the ninja class available")
 MACRO_CONFIG_INT(InfEnableMedic, inf_enable_medic, 1, 0, 1, CFGFLAG_SERVER, "Makes the medic class available")
 MACRO_CONFIG_INT(InfEnableHero, inf_enable_hero, 1, 0, 1, CFGFLAG_SERVER, "Makes the hero class available")
+MACRO_CONFIG_INT(InfEnableElectrician, inf_enable_electrician, 1, 0, 1, CFGFLAG_SERVER, "Makes the electrician class available")
 
 MACRO_CONFIG_INT(InfEnableFollowingCamera, inf_enable_following_camera, 1, 0, 1, CFGFLAG_SERVER, "Enable the camera following a teammate in some cases (bf, kill, etc)")
 
