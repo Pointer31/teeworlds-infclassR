@@ -3,6 +3,7 @@
 #include <game/server/infclass/entities/biologist-mine.h>
 #include <game/server/infclass/entities/bouncing-bullet.h>
 #include <game/server/infclass/entities/control-point.h>
+#include <game/server/infclass/entities/electric-box.h>
 #include <game/server/infclass/entities/engineer-wall.h>
 #include <game/server/infclass/entities/flyingpoint.h>
 #include <game/server/infclass/entities/growingexplosion.h>
@@ -47,6 +48,7 @@ void CIcGameController::RegisterEntityTypes()
 	GameWorld()->RegisterEntityType<CSuperWeaponIndicator>();
 	GameWorld()->RegisterEntityType<CTurret>();
 	GameWorld()->RegisterEntityType<CWhiteHole>();
+	GameWorld()->RegisterEntityType<CElectricBox>();
 }
 
 void CIcGameController::DestroyChildEntities(int OwnerId)
@@ -77,6 +79,7 @@ void CIcGameController::DestroyChildEntities(int OwnerId)
 		CSuperWeaponIndicator::EntityId,
 		CTurret::EntityId,
 		CWhiteHole::EntityId,
+		CElectricBox::EntityId,
 	};
 
 	const icArray<int, 32> aKeepTypes = {

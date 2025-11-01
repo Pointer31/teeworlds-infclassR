@@ -13,6 +13,7 @@ public:
 	bool HasSecondPosition() const { return m_Pos2.has_value(); }
 	vec2 SecondPosition() const { return m_Pos2.value_or(m_Pos); }
 	void SetSecondPosition(vec2 Position);
+	void ResetSecondPosition() { m_Pos2 = {};};
 
 	float MaxLength() const { return m_MaxLength.value_or(0); }
 	void SetMaxLength(float Length);

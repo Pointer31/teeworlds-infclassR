@@ -6910,9 +6910,8 @@ bool CIcGameController::GetClassHelpPage(dynamic_string *pOutput, const char *pL
 		AddLine(_C("Looper", "They can also jump two times in the air."));
 		break;
 	case EPlayerClass::Electrician:
-		AddLine(_C("Electrician", "Electrician"
-							 "Electrician text"));
-		AddLine(_C("Electrician", "Electrician text"));
+		AddLine(_C("Electrician", "The Electrician can place a High Voltage Box with the hammer. A Link goes from the Box to you."));
+		AddLine(_C("Electrician", "Using hammer again creates a Discharge which stuns and deals damage to any infected along the Link."));
 		break;
 	case EPlayerClass::Smoker:
 		AddLine(_C("Smoker", "Smoker has a powerful hook that hurts humans and sucks their blood,"

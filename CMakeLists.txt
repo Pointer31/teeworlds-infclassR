@@ -924,6 +924,8 @@ set_glob(GAME_SERVER GLOB_RECURSE src/game/server
   infclass/entities/bouncing-bullet.h
   infclass/entities/control-point.cpp
   infclass/entities/control-point.h
+  infclass/entities/electric-box.cpp
+  infclass/entities/electric-box.h
   infclass/entities/engineer-wall.cpp
   infclass/entities/engineer-wall.h
   infclass/entities/flyingpoint.cpp

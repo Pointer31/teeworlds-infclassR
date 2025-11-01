@@ -14,6 +14,7 @@
 #include <game/server/infclass/entities/biologist-mine.h>
 #include <game/server/infclass/entities/blinding-laser.h>
 #include <game/server/infclass/entities/bouncing-bullet.h>
+#include <game/server/infclass/entities/electric-box.h>
 #include <game/server/infclass/entities/engineer-wall.h>
 #include <game/server/infclass/entities/growingexplosion.h>
 #include <game/server/infclass/entities/healing_particle.h>
@@ -133,8 +134,8 @@ bool CInfClassHuman::SetupSkin(const CSkinContext &Context, CWeakSkinInfo *pOutp
 	case EPlayerClass::Electrician:
 		pOutput->pSkinName = "cammo";
 		pOutput->UseCustomColor = 1;
-		pOutput->ColorBody = 12713862;
-		// pOutput->ColorBody = 8716159;
+		// pOutput->ColorBody = 12713862;
+		pOutput->ColorBody = 8716159;
 		pOutput->ColorFeet = 0;
 		break;
 	case EPlayerClass::None:
@@ -1005,6 +1006,9 @@ void CInfClassHuman::OnHammerFired(WeaponFireContext *pFireContext)
 	case EPlayerClass::Engineer:
 		PlaceEngineerWall(pFireContext);
 		return;
+	case EPlayerClass::Electrician:
+		PlaceElectricBox(pFireContext);
+		return;
 	case EPlayerClass::Soldier:
 		CSoldierBomb::OnFired(m_pCharacter, pFireContext);
 		return;
@@ -1352,9 +1356,9 @@ void CInfClassHuman::GiveClassAttributes()
 		m_pCharacter->GiveWeapon(WEAPON_HAMMER, -1);
 		m_pCharacter->GiveWeapon(WEAPON_GUN, -1);
 		m_pCharacter->GiveWeapon(WEAPON_SHOTGUN, -1);
-		m_pCharacter->GiveWeapon(WEAPON_GRENADE, -1);
+		// m_pCharacter->GiveWeapon(WEAPON_GRENADE, -1);
 		m_pCharacter->GiveWeapon(WEAPON_LASER, -1);
-		m_pCharacter->SetActiveWeapon(WEAPON_HAMMER);
+		m_pCharacter->SetActiveWeapon(WEAPON_SHOTGUN);
 		break;
 	case EPlayerClass::Soldier:
 		m_pCharacter->GiveWeapon(WEAPON_HAMMER, -1);
@@ -1665,6 +1669,32 @@ void CInfClassHuman::BroadcastWeaponState() const
 			GameServer()->SendBroadcast_Localization(GetCid(),
 				EBroadcastPriority::WEAPONSTATE, BROADCAST_DURATION_REALTIME,
 				_("Laser wall: {sec:RemainingTime}"),
+				"RemainingTime", &Seconds,
+				nullptr
+			);
+		}
+	}
+	else if(GetPlayerClass() == EPlayerClass::Electrician)
+	{
+		// if(ClientVersion >= VERSION_INFC_160)
+		// 	return;
+
+		CElectricBox *pOwnWall = nullptr;
+		for(TEntityPtr<CElectricBox> pWall = GameWorld()->FindFirst<CElectricBox>(); pWall; ++pWall)
+		{
+			if(pWall->GetOwner() == GetCid())
+			{
+				pOwnWall = pWall;
+				break;
+			}
+		}
+
+		if(pOwnWall)
+		{
+			int Seconds = pOwnWall->m_Lives;
+			GameServer()->SendBroadcast_Localization(GetCid(),
+				EBroadcastPriority::WEAPONSTATE, BROADCAST_DURATION_REALTIME,
+				_("Charges: {int:RemainingTime}"),
 				"RemainingTime", &Seconds,
 				nullptr
 			);
@@ -2079,6 +2109,57 @@ void CInfClassHuman::PlaceEngineerWall(WeaponFireContext *pFireContext)
 		{
 			pExistingWall->SetSecondPosition(GetPos());
 			pExistingWall->SetLifespan(Config()->m_InfBarrierLifeSpan);
+			GameServer()->CreateSound(GetPos(), SOUND_LASER_FIRE);
+		}
+		else
+		{
+			GameWorld()->DestroyEntity(pExistingWall);
+		}
+	}
+}
+
+void CInfClassHuman::PlaceElectricBox(WeaponFireContext *pFireContext)
+{
+	TEntityPtr<CElectricBox> pExistingWall;
+	for(TEntityPtr<CElectricBox> pWall = GameWorld()->FindFirst<CElectricBox>(); pWall; ++pWall)
+	{
+		if(pWall->GetOwner() == GetCid())
+		{
+			if(pWall->HasSecondPosition())
+			{
+				// GameWorld()->DestroyEntity(pWall);
+				return;
+			}
+			else
+			{
+				pExistingWall = pWall;
+			}
+			break;
+		}
+	}
+
+	if(!pExistingWall)
+	{
+		pExistingWall = new CElectricBox(GameServer(), GetPos(), GetCid());
+	}
+	else if(distance(pExistingWall->GetPos(), GetPos()) > 10.0)
+	{
+		vec2 FirstPos = pExistingWall->GetPos();
+		for(int i = 0; i < 15; i++)
+		{
+			vec2 TestPos = FirstPos + (GetPos() - FirstPos) * (static_cast<float>(i) / 14.0f);
+			if(!GameController()->HumanWallAllowedInPos(TestPos))
+			{
+				pFireContext->FireAccepted = false;
+				break;
+			}
+		}
+
+		if(pFireContext->FireAccepted)
+		{
+			pExistingWall->SetSecondPosition(GetPos());
+			pExistingWall->SetLifespan(1.0f);
+			pExistingWall->m_Lives--;
 			GameServer()->CreateSound(GetPos(), SOUND_LASER_FIRE);
 		}
 		else

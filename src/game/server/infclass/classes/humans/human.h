@@ -101,6 +101,7 @@ protected:
 
 	void ActivateNinja(WeaponFireContext *pFireContext);
 	void PlaceEngineerWall(WeaponFireContext *pFireContext);
+	void PlaceElectricBox(WeaponFireContext *pFireContext);
 	void PlaceLooperWall(WeaponFireContext *pFireContext);
 	void FireMercenaryBomb(WeaponFireContext *pFireContext);
 	void PlaceScientistMine(WeaponFireContext *pFireContext);

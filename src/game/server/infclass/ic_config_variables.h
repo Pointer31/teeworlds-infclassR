@@ -178,6 +178,10 @@ MACRO_CONFIG_INT(InfControlPointCaptionRadius, inf_cp_caption_radius, 48, 32, 10
 MACRO_CONFIG_INT(InfControlPointVisualRadius, inf_cp_visual_radius, 48 + 64, 32, 10000, CFGFLAG_SERVER, "Control Point outer (effect) radius")
 MACRO_CONFIG_INT(InfControlPointGlobalInterval, inf_cp_global_effect_interval, 20, 1, 100, CFGFLAG_SERVER, "Control Point global effect rate (1HP every N seconds)")
 
+// Electrician class config
+MACRO_CONFIG_INT(InfVoltageBoxCharges, inf_voltage_box_charges, 2, 0, 100, CFGFLAG_SERVER, "The number of voltage box charges")
+MACRO_CONFIG_INT(InfVoltageBoxRange, inf_voltage_box_range, 800, 0, 10000, CFGFLAG_SERVER, "The maximum length of a voltage box link")
+
 //Turret
 MACRO_CONFIG_INT(InfMinPlayersForTurrets, inf_min_players_for_turrets, 3, 0, 100, CFGFLAG_SERVER, "Minimum number of players that are needed to enable turrets")
 MACRO_CONFIG_INT(InfTurretEnable, inf_turret_enable, 1, 0, 1, CFGFLAG_SERVER, "If turrets are available")
