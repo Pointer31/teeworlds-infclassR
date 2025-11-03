@@ -29,6 +29,11 @@ CElectricBox::CElectricBox(CGameContext *pGameContext, vec2 Pos1, int Owner)
 
 	m_EndPointId = Server()->SnapNewId();
 	m_EndPointId2 = Server()->SnapNewId();
+	m_EndPointId3 = Server()->SnapNewId();
+	m_EndPointId4 = Server()->SnapNewId();
+	m_EndPointId5 = Server()->SnapNewId();
+	m_EndPointId6 = Server()->SnapNewId();
+	m_EndPointId7 = Server()->SnapNewId();
 	m_Lives = Config()->m_InfVoltageBoxCharges;
 
 	GameWorld()->InsertEntity(this);
@@ -113,35 +118,41 @@ void CElectricBox::Snap(int SnappingClient)
 	// 	}
 	// }
 
-	// if(Server()->GetClientInfclassVersion(SnappingClient))
-	// {
-	// 	CNetObj_InfClassObject *pInfClassObject = SnapInfClassObject();
-	// 	if(!pInfClassObject)
-	// 		return;
+	if(Server()->GetClientInfclassVersion(SnappingClient))
+	{
+		CNetObj_InfClassObject *pInfClassObject = SnapInfClassObject();
+		if(!pInfClassObject)
+			return;
 
-	// 	if(!HasSecondPosition())
-	// 	{
-	// 		// Snap fake second position to fix OwnerIcon position
-	// 		pInfClassObject->m_EndTick = -1;
-	// 		pInfClassObject->m_Flags |= INFCLASS_OBJECT_FLAG_HAS_SECOND_POSITION;
-	// 		pInfClassObject->m_X2 = pInfClassObject->m_X;
-	// 		pInfClassObject->m_Y2 = pInfClassObject->m_Y - 1;
-	// 	}
-	// }
+		if(true)
+		{
+			// Snap fake second position to fix OwnerIcon position
+			pInfClassObject->m_EndTick = -1;
+			pInfClassObject->m_Flags |= INFCLASS_OBJECT_FLAG_HAS_SECOND_POSITION;
+			pInfClassObject->m_X2 = pInfClassObject->m_X;
+			pInfClassObject->m_Y2 = pInfClassObject->m_Y - 1;
+		}
+	}
 
 	int SnappingClientVersion = GameServer()->GetClientVersion(SnappingClient);
 	CSnapContext Context(SnappingClientVersion);
 
 	// GameServer()->SnapLaserObject(Context, GetId(), m_Pos, m_Pos, m_SnapStartTick, GetOwner());
 	
+	int extraTicks = 4;
+	if(distance(m_Pos, GameServer()->GetPlayerChar(GetOwner())->m_Pos) > MaxLength() - 32.0*6.0)
+		extraTicks = 5;
 	if(HasSecondPosition())
-	{
-		GameServer()->SnapLaserObject(Context, m_EndPointId, m_Pos, GameServer()->GetPlayerChar(GetOwner())->m_Pos, Server()->Tick(), GetOwner());
-	}
-	else
-	{
-		GameServer()->SnapLaserObject(Context, m_EndPointId2, m_Pos, GameServer()->GetPlayerChar(GetOwner())->m_Pos, Server()->Tick()-5, GetOwner());
-	}
+		extraTicks = 0;
+
+	GameServer()->SnapLaserObject(Context, m_EndPointId, m_Pos, GameServer()->GetPlayerChar(GetOwner())->m_Pos, Server()->Tick()-extraTicks, GetOwner());
+
+	if(HasSecondPosition())
+		extraTicks = 4;
+	GameServer()->SnapLaserObject(Context, m_EndPointId2, {m_Pos.x-16, m_Pos.y-16}, {m_Pos.x-16, m_Pos.y+16}, Server()->Tick()-extraTicks, GetOwner());
+	GameServer()->SnapLaserObject(Context, m_EndPointId3, {m_Pos.x-16, m_Pos.y+16}, {m_Pos.x+16, m_Pos.y+16}, Server()->Tick()-extraTicks, GetOwner());
+	GameServer()->SnapLaserObject(Context, m_EndPointId4, {m_Pos.x+16, m_Pos.y+16}, {m_Pos.x+16, m_Pos.y-16}, Server()->Tick()-extraTicks, GetOwner());
+	GameServer()->SnapLaserObject(Context, m_EndPointId5, {m_Pos.x+16, m_Pos.y-16}, {m_Pos.x-16, m_Pos.y-16}, Server()->Tick()-extraTicks, GetOwner());
 }
 
 void CElectricBox::OnHitInfected(CIcCharacter *pCharacter)

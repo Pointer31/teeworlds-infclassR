@@ -26,6 +26,11 @@ private:
 
 	int m_EndPointId{};
 	int m_EndPointId2{};
+	int m_EndPointId3{};
+	int m_EndPointId4{};
+	int m_EndPointId5{};
+	int m_EndPointId6{};
+	int m_EndPointId7{};
 	int m_WallFlashTicks{};
 	int m_SnapStartTick{};
 };
