@@ -53,6 +53,8 @@ enum class EInfclassWeapon
 	BOOMER_EXPLOSION,
 	INFECTED_GRENADE,
 
+	ELECTRICIAN_SHOTGUN,
+
 	Count,
 	Invalid = Count,
 };

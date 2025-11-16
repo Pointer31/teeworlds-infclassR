@@ -1829,7 +1829,7 @@ EInfclassWeapon CIcCharacter::GetInfWeaponId(int WID) const
 		case EPlayerClass::Biologist:
 			return EInfclassWeapon::RICOCHET_SHOTGUN;
 		case EPlayerClass::Electrician:
-			return EInfclassWeapon::RICOCHET_SHOTGUN;
+			return EInfclassWeapon::ELECTRICIAN_SHOTGUN;
 		default:
 			return EInfclassWeapon::SHOTGUN;
 		}

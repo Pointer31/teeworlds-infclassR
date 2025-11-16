@@ -6912,6 +6912,7 @@ bool CIcGameController::GetClassHelpPage(dynamic_string *pOutput, const char *pL
 	case EPlayerClass::Electrician:
 		AddLine(_C("Electrician", "The Electrician can place a High Voltage Box with the hammer. A Link goes from the Box to you."));
 		AddLine(_C("Electrician", "Using hammer again creates a Discharge which stuns and deals damage to any infected along the Link."));
+		AddLine(_C("Electrician", "Their shotgun shoots three low-powered lasers."));
 		break;
 	case EPlayerClass::Smoker:
 		AddLine(_C("Smoker", "Smoker has a powerful hook that hurts humans and sucks their blood,"
@@ -8092,6 +8093,7 @@ void CIcGameController::InitWeapons()
 	SetWeaponForce(EInfclassWeapon::MERCENARY_UPGRADE_LASER, 0);
 	SetWeaponForce(EInfclassWeapon::BLINDING_LASER, GetWeaponForce(EInfclassWeapon::LASER));
 	SetWeaponForce(EInfclassWeapon::TRANQUILIZER_RIFLE, GetWeaponForce(EInfclassWeapon::LASER));
+	SetWeaponForce(EInfclassWeapon::ELECTRICIAN_SHOTGUN, GetWeaponForce(EInfclassWeapon::LASER));
 
 	SetFireDelay(EInfclassWeapon::NONE, 0);
 	SetFireDelay(EInfclassWeapon::HAMMER, 125);
@@ -8123,6 +8125,7 @@ void CIcGameController::InitWeapons()
 	SetFireDelay(EInfclassWeapon::MERCENARY_UPGRADE_LASER, 200);
 	SetFireDelay(EInfclassWeapon::BLINDING_LASER, GetFireDelay(EInfclassWeapon::LASER));
 	SetFireDelay(EInfclassWeapon::TRANQUILIZER_RIFLE, GetFireDelay(EInfclassWeapon::LASER));
+	SetFireDelay(EInfclassWeapon::ELECTRICIAN_SHOTGUN, 650);
 
 	SetAmmoRegenTime(EInfclassWeapon::NONE, 0);
 	SetAmmoRegenTime(EInfclassWeapon::HAMMER, 0);
@@ -8155,6 +8158,7 @@ void CIcGameController::InitWeapons()
 	SetAmmoRegenTime(EInfclassWeapon::LOOPER_GRENADE, 5000);
 	SetAmmoRegenTime(EInfclassWeapon::BLINDING_LASER, 10000);
 	SetAmmoRegenTime(EInfclassWeapon::TRANQUILIZER_RIFLE, 1000);
+	SetAmmoRegenTime(EInfclassWeapon::ELECTRICIAN_SHOTGUN, 1200);
 
 	SetMaxAmmo(EInfclassWeapon::NONE, -1);
 	SetMaxAmmo(EInfclassWeapon::HAMMER, -1);
@@ -8186,6 +8190,7 @@ void CIcGameController::InitWeapons()
 	SetMaxAmmo(EInfclassWeapon::LOOPER_GRENADE, 10);
 	SetMaxAmmo(EInfclassWeapon::BLINDING_LASER, 10);
 	SetMaxAmmo(EInfclassWeapon::TRANQUILIZER_RIFLE, 10);
+	SetMaxAmmo(EInfclassWeapon::ELECTRICIAN_SHOTGUN, 10);
 
 	// Infected weapons
 	SetWeaponForce(EInfclassWeapon::JAWS, GetWeaponForce(EInfclassWeapon::HAMMER));

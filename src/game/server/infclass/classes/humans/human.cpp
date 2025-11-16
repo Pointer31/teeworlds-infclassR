@@ -33,6 +33,7 @@
 #include <game/server/infclass/entities/soldier-bomb.h>
 #include <game/server/infclass/entities/turret.h>
 #include <game/server/infclass/entities/white-hole.h>
+#include <game/server/infclass/entities/chain-laser.h>
 #include <game/server/infclass/ic_gamecontroller.h>
 #include <game/server/infclass/ic_player.h>
 #include <game/server/infclass/player_upgrades.h>
@@ -1155,6 +1156,17 @@ void CInfClassHuman::OnShotgunFired(WeaponFireContext *pFireContext)
 		break;
 	}
 
+	if (pFireContext->InfClassWeapon == EInfclassWeapon::ELECTRICIAN_SHOTGUN) {
+		float StartEnergy = GameServer()->Tuning()->m_LaserReach * m_LaserReachModifier;
+		int Damage = 4;
+		CIcLaser::MakeLaser(GameServer(), GetPos(), rotate(Direction, -7.0f), StartEnergy, GetCid(), Damage, pFireContext->InfClassWeapon);
+		CIcLaser::MakeLaser(GameServer(), GetPos(), Direction, StartEnergy, GetCid(), Damage, pFireContext->InfClassWeapon);
+		CIcLaser::MakeLaser(GameServer(), GetPos(), rotate(Direction, 7.0f), StartEnergy, GetCid(), Damage, pFireContext->InfClassWeapon);
+		// CChainLaser::MakeLaser(GameServer(), GetPos(), Direction, StartEnergy, GetCid(), Damage, pFireContext->InfClassWeapon);
+		GameServer()->CreateSound(GetPos(), SOUND_SHOTGUN_FIRE);
+		return;
+	}
+
 	for(int i = -ShotSpread; i <= ShotSpread; ++i)
 	{
 		const float Spreading = i * SpreadingValue;
@@ -1357,7 +1369,7 @@ void CInfClassHuman::GiveClassAttributes()
 		m_pCharacter->GiveWeapon(WEAPON_GUN, -1);
 		m_pCharacter->GiveWeapon(WEAPON_SHOTGUN, -1);
 		// m_pCharacter->GiveWeapon(WEAPON_GRENADE, -1);
-		m_pCharacter->GiveWeapon(WEAPON_LASER, -1);
+		// m_pCharacter->GiveWeapon(WEAPON_LASER, -1);
 		m_pCharacter->SetActiveWeapon(WEAPON_SHOTGUN);
 		break;
 	case EPlayerClass::Soldier:

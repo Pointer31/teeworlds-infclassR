@@ -922,6 +922,8 @@ set_glob(GAME_SERVER GLOB_RECURSE src/game/server
   infclass/entities/blinding-laser.h
   infclass/entities/bouncing-bullet.cpp
   infclass/entities/bouncing-bullet.h
+  infclass/entities/chain-laser.cpp
+  infclass/entities/chain-laser.h
   infclass/entities/control-point.cpp
   infclass/entities/control-point.h
   infclass/entities/electric-box.cpp

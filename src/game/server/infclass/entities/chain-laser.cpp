@@ -1,6 +1,7 @@
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
-#include "ic_laser.h"
+#include "chain-laser.h"
+
 
 #include <engine/shared/config.h>
 
@@ -13,8 +14,9 @@
 #include <game/server/infclass/ic_gamecontroller.h>
 
 #include "growingexplosion.h"
+#include "ic_laser.h"
 
-CIcLaser::CIcLaser(CGameContext *pGameContext, vec2 Pos, vec2 Direction, float StartEnergy, int Owner, int Dmg, EInfclassWeapon InfClassWeapon) :
+CChainLaser::CChainLaser(CGameContext *pGameContext, vec2 Pos, vec2 Direction, float StartEnergy, int Owner, int Dmg, EInfclassWeapon InfClassWeapon) :
 	CIcEntity(pGameContext, CGameWorld::ENTTYPE_LASER, Pos, Owner), m_Weapon(InfClassWeapon)
 {
 	m_Dmg = Dmg;
@@ -22,10 +24,13 @@ CIcLaser::CIcLaser(CGameContext *pGameContext, vec2 Pos, vec2 Direction, float S
 	m_Dir = Direction;
 	m_MaxBounces = GameServer()->Tuning()->m_LaserBounceNum;
 	m_BounceCost = GameServer()->Tuning()->m_LaserBounceCost;
+	m_ZombiesHit = 0;
+	m_ToZombiesSnaps[0] = Server()->SnapNewId();
+
 	GameWorld()->InsertEntity(this);
 }
 
-bool CIcLaser::HitTarget(vec2 From, vec2 To)
+bool CChainLaser::HitTarget(vec2 From, vec2 To)
 {
 	vec2 At;
 	CIcCharacter *pOwnerChar = GameController()->GetCharacter(GetOwner());
@@ -68,6 +73,50 @@ bool CIcLaser::HitTarget(vec2 From, vec2 To)
 			m_From = From;
 			m_Pos = At;
 			m_Energy = -1;
+
+			int alreadyHit = 0;
+			printf("ZOMBIE HIT\n");
+
+			TEntityPtr<CIcCharacter> pChrClosest = NULL;
+			int ClosestDistance = 1000000;
+
+			int ignoreCIDS[10] = {pHit->GetCid(),-1,-1,-1,-1,-1,-1,-1,-1,-1};
+			
+			icArray<CIcCharacter *, MAX_CLIENTS> aCharacters;
+			int Results = GameWorld()->FindEntities(m_Pos, 20000, reinterpret_cast<CEntity **>(aCharacters.Data()), aCharacters.Capacity(), CIcCharacter::EntityId);
+			aCharacters.Resize(Results);
+
+			for(const CIcCharacter *pChr : aCharacters)
+			{
+				if(!pChr->IsInfected())
+					continue;
+
+				bool cont = false;
+				for (int i = 0; i < 10; i++)
+					if (ignoreCIDS[i] == pChr->GetCid())
+						cont = true;
+				if (cont)
+					continue;
+				printf("ZOMBIE, %i\n", pChr->GetCid());
+
+				float Len2 = distance_squared(pChr->GetPos(), m_Pos);
+
+				if (Len2 < 20000 && Len2 < ClosestDistance) {
+					printf("ZOMBIE CLOSEST YET, %i\n", pChr->GetCid());
+					ClosestDistance = Len2;
+					// pChrClosest = pChr;
+					m_ToZombies[0] = pChr->GetPos();
+					m_ZombiesHit = 1;
+					// float StartEnergy = 200;
+					// int Damage = GameServer()->Tuning()->m_LaserDamage;
+					// vec2 Direction = {(pChr->GetPos().x - m_Pos.x)/Len2, (pChr->GetPos().y - m_Pos.y)/Len2};
+					// CIcLaser::MakeLaser(GameServer(), {m_Pos.x + Direction.x*64, m_Pos.y + Direction.y*64}, Direction, StartEnergy, GetOwner(), Damage, EInfclassWeapon::ENGINEER_LASER);
+				}
+
+				alreadyHit++;
+				if (alreadyHit >= 2)
+					break;
+			}
 			return true;
 		}
 
@@ -78,23 +127,16 @@ bool CIcLaser::HitTarget(vec2 From, vec2 To)
 	return false;
 }
 
-bool CIcLaser::OnCharacterHit(CIcCharacter *pHit, const vec2 &At)
+bool CChainLaser::OnCharacterHit(CIcCharacter *pHit, const vec2 &At)
 {
 	float DamageLeft = 0;
 	pHit->TakeDamage(vec2(0.f, 0.f), m_Dmg, GetOwner(), GetDamageType(), &DamageLeft);
 	m_Dmg = DamageLeft / 2;
 
-	if(m_Weapon == EInfclassWeapon::LOOPER_LASER)
-	{
-		const float EffectDurationInSeconds = Config()->m_InfSlowMotionGunDuration * 0.1f;
-		pHit->SlowMotionEffect(EffectDurationInSeconds, GetOwner());
-		GameServer()->SendEmoticon(pHit->GetCid(), EMOTICON_EXCLAMATION);
-	}
-
 	return !m_Piercing || (m_Dmg < 1);
 }
 
-void CIcLaser::DoReflect(const vec2 &To)
+void CChainLaser::DoReflect(const vec2 &To)
 {
 	m_From = m_Pos;
 	m_Pos = To;
@@ -102,13 +144,13 @@ void CIcLaser::DoReflect(const vec2 &To)
 	m_Energy -= distance(m_From, m_Pos) + m_BounceCost;
 	m_Bounces++;
 
-	if(m_Bounces > m_MaxBounces)
+	// if(m_Bounces > m_MaxBounces)
 		m_Energy = -1;
 
-	GameServer()->CreateSound(m_Pos, SOUND_LASER_BOUNCE);
+	// GameServer()->CreateSound(m_Pos, SOUND_LASER_BOUNCE);
 }
 
-void CIcLaser::DoBounce()
+void CChainLaser::DoBounce()
 {
 	m_EvalTick = Server()->Tick();
 
@@ -147,56 +189,53 @@ void CIcLaser::DoBounce()
 	}
 }
 
-CIcLaser *CIcLaser::MakeLaser(CGameContext *pGameContext, vec2 Pos, vec2 Direction, float StartEnergy, int Owner, int Dmg, EInfclassWeapon InfClassWeapon)
+CChainLaser *CChainLaser::MakeLaser(CGameContext *pGameContext, vec2 Pos, vec2 Direction, float StartEnergy, int Owner, int Dmg, EInfclassWeapon InfClassWeapon)
 {
-	CIcLaser *pLaser = new CIcLaser(pGameContext, Pos, Direction, StartEnergy, Owner, Dmg, InfClassWeapon);
-	if (InfClassWeapon == EInfclassWeapon::ELECTRICIAN_SHOTGUN) 
-	{
-		pLaser->SetPiercing(true);
-		pLaser->m_MaxBounces = 0;
-	}
-		
+	CChainLaser *pLaser = new CChainLaser(pGameContext, Pos, Direction, StartEnergy, Owner, Dmg, InfClassWeapon);
 	pLaser->DoBounce();
 	return pLaser;
 }
 
-void CIcLaser::Tick()
+void CChainLaser::Tick()
 {
 	if(Server()->Tick() > m_EvalTick+(Server()->TickSpeed()*GameServer()->Tuning()->m_LaserBounceDelay)/1000.0f)
 		DoBounce();
 }
 
-void CIcLaser::TickPaused()
+void CChainLaser::TickPaused()
 {
 	++m_EvalTick;
 }
 
-void CIcLaser::Snap(int SnappingClient)
+void CChainLaser::Snap(int SnappingClient)
 {
 	if(NetworkClipped(SnappingClient) && NetworkClipped(SnappingClient, m_From))
 		return;
 
 	int SnappingClientVersion = GameServer()->GetClientVersion(SnappingClient);
 	CSnapContext Context(SnappingClientVersion);
+
+	if (m_ZombiesHit > 0)
+		GameServer()->SnapLaserObject(Context, m_ToZombiesSnaps[0], m_ToZombies[0], m_Pos, m_EvalTick, GetOwner(), m_SnapLaserType);
 	GameServer()->SnapLaserObject(Context, GetId(), m_Pos, m_From, m_EvalTick, GetOwner(), m_SnapLaserType);
 }
 
-void CIcLaser::SetExplosive(bool Explosive)
+void CChainLaser::SetExplosive(bool Explosive)
 {
 	m_Explosive = Explosive;
 }
 
-void CIcLaser::SetPiercing(bool Piercing)
+void CChainLaser::SetPiercing(bool Piercing)
 {
 	m_Piercing = Piercing;
 }
 
-void CIcLaser::SetSnapType(int LaserType)
+void CChainLaser::SetSnapType(int LaserType)
 {
 	m_SnapLaserType = LaserType;
 }
 
-EDamageType CIcLaser::GetDamageType() const
+EDamageType CChainLaser::GetDamageType() const
 {
 	switch(m_Weapon)
 	{
@@ -206,11 +245,10 @@ EDamageType CIcLaser::GetDamageType() const
 		return EDamageType::SNIPER_RIFLE;
 	case EInfclassWeapon::LASER_TURRET:
 		return EDamageType::TURRET_LASER;
+	case EInfclassWeapon::ELECTRICIAN_SHOTGUN:
 	case EInfclassWeapon::ENGINEER_LASER:
 	case EInfclassWeapon::HERO_LASER:
 		return EDamageType::LASER;
-	case EInfclassWeapon::ELECTRICIAN_SHOTGUN:
-		return EDamageType::SHOTGUN;
 
 	default:
 		dbg_assert(false, "Invalid GetDamageType() call");
