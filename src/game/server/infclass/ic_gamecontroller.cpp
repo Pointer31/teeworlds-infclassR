@@ -6973,8 +6973,8 @@ bool CIcGameController::GetClassHelpPage(dynamic_string *pOutput, const char *pL
 		AddLine(_C("Tank", "On the other hand, the movement speed and the hook lenght are reduced."));
 		break;
 	case EPlayerClass::Spitter:
-		AddLine(_C("Spitter", "The Tank has a damage resistance and a stunning hammer with increased range and force."));
-		AddLine(_C("Spitter", "On the other hand, the movement speed and the hook lenght are reduced."));
+		AddLine(_C("Spitter", "The Spitter is similar to the bat, having a weak hammer."));
+		AddLine(_C("Spitter", "However, instead of infinite jumps, it has a grenade weapon to deal ranged damage."));
 		break;
 	}
 
@@ -8323,8 +8323,11 @@ bool CIcGameController::SetPlayerClassProbability(EPlayerClass PlayerClass, int 
 		Config()->m_InfProbaUndead = Probability;
 		break;
 	case EPlayerClass::Tank:
+		Config()->m_InfProbaTank = Probability;
+		break;
 	case EPlayerClass::Spitter:
-		return false;
+		Config()->m_InfProbaSpitter = Probability;
+		break;
 	default:
 		Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "controller", "WARNING: Invalid SetPlayerClassProbability() call");
 		return false;
@@ -8391,8 +8394,9 @@ int CIcGameController::GetPlayerClassProbability(EPlayerClass PlayerClass) const
 	case EPlayerClass::Undead:
 		return Config()->m_InfProbaUndead;
 	case EPlayerClass::Tank:
+		return Config()->m_InfProbaTank;
 	case EPlayerClass::Spitter:
-		return 0;
+		return Config()->m_InfProbaSpitter;
 	default:
 		break;
 	}

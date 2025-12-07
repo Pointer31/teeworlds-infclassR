@@ -128,6 +128,8 @@ MACRO_CONFIG_INT(InfProbaSlug, inf_proba_slug, 5, 0, 100, CFGFLAG_SERVER, "Proba
 MACRO_CONFIG_INT(InfProbaVoodoo, inf_proba_voodoo, 5, 0, 100, CFGFLAG_SERVER, "Probability for an infected to be a voodoo")
 MACRO_CONFIG_INT(InfProbaWitch, inf_proba_witch, 5, 0, 100, CFGFLAG_SERVER, "Probability for an infected to be a witch")
 MACRO_CONFIG_INT(InfProbaUndead, inf_proba_undead, 4, 0, 100, CFGFLAG_SERVER, "Probability for an infected to be an undead")
+MACRO_CONFIG_INT(InfProbaSpitter, inf_proba_spitter, 0, 0, 100, CFGFLAG_SERVER, "Probability for an infected to be a spitter")
+MACRO_CONFIG_INT(InfProbaTank, inf_proba_tank, 0, 0, 100, CFGFLAG_SERVER, "Probability for an infected to be a tank")
 
 MACRO_CONFIG_INT(InfEnableEngineer, inf_enable_engineer, 1, 0, 1, CFGFLAG_SERVER, "Makes the engineer class available")
 MACRO_CONFIG_INT(InfEnableSoldier, inf_enable_soldier, 1, 0, 1, CFGFLAG_SERVER, "Makes the soldier class available")
