@@ -599,8 +599,9 @@ void CCharacter::SnapCharacter(int SnappingClient, int Id)
 		.Id = Id,
 	};
 	PrepareSnapContext(SnapContext);
-
-	CNetObj_Character *pCharacter = Server()->SnapNewItem<CNetObj_Character>(SnapContext.Id);
+	if(!Server()->IsSixup(SnappingClient))
+	{
+			CNetObj_Character *pCharacter = Server()->SnapNewItem<CNetObj_Character>(SnapContext.Id);
 	if(!pCharacter)
 		return;
 
@@ -623,6 +624,35 @@ void CCharacter::SnapCharacter(int SnappingClient, int Id)
 	pCharacter->m_Health = SnapContext.Health;
 	pCharacter->m_Armor = SnapContext.Armor;
 	pCharacter->m_PlayerFlags = GetPlayer()->m_PlayerFlags;
+
+	}
+	else
+	{
+		protocol7::CNetObj_Character *pCharacter = Server()->SnapNewItem<protocol7::CNetObj_Character>(SnapContext.Id);
+		if(!pCharacter)
+			return;
+
+		SnapContext.pCore->Write(reinterpret_cast<CNetObj_CharacterCore *>(static_cast<protocol7::CNetObj_CharacterCore *>(pCharacter)));
+		if(pCharacter->m_Angle > (int)(pi * 256.0f))
+		{
+			pCharacter->m_Angle -= (int)(2.0f * pi * 256.0f);
+		}
+
+		// m_HookTick can be negative when using the hook_duration tune, which 0.7 clients
+		// will consider invalid. https://github.com/ddnet/ddnet/issues/3915
+		pCharacter->m_HookTick = maximum(0, pCharacter->m_HookTick);
+
+		pCharacter->m_Tick = SnapContext.Tick;
+		pCharacter->m_Emote = SnapContext.Emote;
+		pCharacter->m_AttackTick = m_AttackTick;
+		pCharacter->m_Direction = m_Input.m_Direction;
+		pCharacter->m_Weapon = SnapContext.Weapon;
+		pCharacter->m_AmmoCount = SnapContext.AmmoCount;
+
+		pCharacter->m_Health = SnapContext.Health;
+		pCharacter->m_Armor = SnapContext.Armor;
+		pCharacter->m_TriggeredEvents = 0;
+	}
 }
 
 void CCharacter::PrepareSnapContext(CCharacterSnapContext &SnapContext) const

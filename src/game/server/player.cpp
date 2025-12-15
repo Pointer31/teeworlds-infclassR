@@ -214,6 +214,8 @@ void CPlayer::Snap(int SnappingClient)
 	int Latency = SnappingClient == SERVER_DEMO_CLIENT ? m_Latency.m_Min : GameServer()->m_apPlayers[SnappingClient]->m_aCurLatency[m_ClientId];
 	int PlayerInfoScore = GetScore(SnappingClient);
 
+	if(!Server()->IsSixup(SnappingClient))
+	{
 	CNetObj_PlayerInfo *pPlayerInfo = Server()->SnapNewItem<CNetObj_PlayerInfo>(id);
 	if(!pPlayerInfo)
 		return;
@@ -238,6 +240,23 @@ void CPlayer::Snap(int SnappingClient)
 		pSpectatorInfo->m_SpectatorId = m_SpectatorId;
 		pSpectatorInfo->m_X = m_ViewPos.x;
 		pSpectatorInfo->m_Y = m_ViewPos.y;
+	}
+	}
+	else
+	{
+		protocol7::CNetObj_PlayerInfo *pPlayerInfo = Server()->SnapNewItem<protocol7::CNetObj_PlayerInfo>(id);
+		if(!pPlayerInfo)
+			return;
+
+		pPlayerInfo->m_PlayerFlags = 0;//PlayerFlags_SixToSeven(m_PlayerFlags);
+		// if(SnappingClientVersion >= VERSION_DDRACE && (m_PlayerFlags & PLAYERFLAG_AIM))
+		// 	pPlayerInfo->m_PlayerFlags |= protocol7::PLAYERFLAG_AIM;
+		// if(Server()->IsRconAuthed(m_ClientId) && ((SnappingClient >= 0 && Server()->IsRconAuthed(SnappingClient)) || !Server()->HasAuthHidden(m_ClientId)))
+		// 	pPlayerInfo->m_PlayerFlags |= protocol7::PLAYERFLAG_ADMIN;
+
+		// Times are in milliseconds for 0.7
+		pPlayerInfo->m_Score = PlayerInfoScore;//m_Score.has_value() ? GameServer()->Score()->PlayerData(m_ClientId)->m_BestTime * 1000 : -1;
+		pPlayerInfo->m_Latency = Latency;
 	}
 }
 

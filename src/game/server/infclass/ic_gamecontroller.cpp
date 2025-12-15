@@ -6590,12 +6590,40 @@ void CIcGameController::Snap(int SnappingClient)
 
 	SendServerParams(SnappingClient);
 
+	if(!Server()->IsSixup(SnappingClient))
+	{
 	CNetObj_GameData *pGameDataObj = Server()->SnapNewItem<CNetObj_GameData>(0);
 	if(!pGameDataObj)
 		return;
 
 	pGameDataObj->m_FlagCarrierRed = FLAG_ATSTAND;
 	pGameDataObj->m_FlagCarrierBlue = FLAG_ATSTAND;
+	}
+	else
+	{
+		protocol7::CNetObj_GameData *pGameData = Server()->SnapNewItem<protocol7::CNetObj_GameData>(0);
+		if(!pGameData)
+			return;
+
+		pGameData->m_GameStartTick = m_RoundStartTick;
+		pGameData->m_GameStateFlags = 0;
+		// if(m_GameOverTick != -1)
+		// 	pGameData->m_GameStateFlags |= protocol7::GAMESTATEFLAG_GAMEOVER;
+		// if(m_SuddenDeath)
+		// 	pGameData->m_GameStateFlags |= protocol7::GAMESTATEFLAG_SUDDENDEATH;
+		// if(GameServer()->m_World.m_Paused)
+		// 	pGameData->m_GameStateFlags |= protocol7::GAMESTATEFLAG_PAUSED;
+
+		pGameData->m_GameStateEndTick = 0;
+
+		// protocol7::CNetObj_GameDataRace *pRaceData = Server()->SnapNewItem<protocol7::CNetObj_GameDataRace>(0);
+		// if(!pRaceData)
+		// 	return;
+
+		// pRaceData->m_BestTime = round_to_int(m_CurrentRecord * 1000);
+		// pRaceData->m_Precision = 2;
+		// pRaceData->m_RaceFlags = protocol7::RACEFLAG_KEEP_WANTED_WEAPON;
+	}
 }
 
 CPlayer *CIcGameController::CreatePlayer(int ClientId, bool IsSpectator, void *pData)
