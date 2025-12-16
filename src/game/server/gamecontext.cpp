@@ -1867,10 +1867,11 @@ void CGameContext::OnClientEnter(int ClientId)
 
 	for(int p = 0; p < protocol7::NUM_SKINPARTS; p++)
 	{
-		NewClientInfoMsg.m_apSkinPartNames[p] = pNewPlayer->m_TeeInfos.m_apSkinPartNames[p];
-		NewClientInfoMsg.m_aUseCustomColors[p] = pNewPlayer->m_TeeInfos.m_aUseCustomColors[p];
-		NewClientInfoMsg.m_aSkinPartColors[p] = pNewPlayer->m_TeeInfos.m_aSkinPartColors[p];
+		NewClientInfoMsg.m_apSkinPartNames[p] = "";
+		NewClientInfoMsg.m_aUseCustomColors[p] = true;
+		NewClientInfoMsg.m_aSkinPartColors[p] = 1798004;
 	}
+	NewClientInfoMsg.m_aSkinPartColors[4] = 1869630;
 
 	// update client infos (others before local)
 	for(int i = 0; i < Server()->MaxClients(); ++i)
@@ -1897,10 +1898,11 @@ void CGameContext::OnClientEnter(int ClientId)
 
 			for(int p = 0; p < protocol7::NUM_SKINPARTS; p++)
 			{
-				ClientInfoMsg.m_apSkinPartNames[p] = pPlayer->m_TeeInfos.m_apSkinPartNames[p];
-				ClientInfoMsg.m_aUseCustomColors[p] = pPlayer->m_TeeInfos.m_aUseCustomColors[p];
-				ClientInfoMsg.m_aSkinPartColors[p] = pPlayer->m_TeeInfos.m_aSkinPartColors[p];
+				ClientInfoMsg.m_apSkinPartNames[p] = "";
+				ClientInfoMsg.m_aUseCustomColors[p] = true;
+				ClientInfoMsg.m_aSkinPartColors[p] = 1798004;
 			}
+			ClientInfoMsg.m_aSkinPartColors[4] = 1869630;
 
 			Server()->SendPackMsg(&ClientInfoMsg, MSGFLAG_VITAL | MSGFLAG_NORECORD, ClientId);
 		}
@@ -2206,6 +2208,8 @@ void *CGameContext::PreProcessMsg(int *pMsgId, CUnpacker *pUnpacker, int ClientI
 		}
 		else if(*pMsgId == protocol7::NETMSGTYPE_CL_SKINCHANGE)
 		{
+			return nullptr; // in infclass players do not set their own skins, so we skip this part of the code
+
 			protocol7::CNetMsg_Cl_SkinChange *pMsg = (protocol7::CNetMsg_Cl_SkinChange *)pRawMsg;
 			if(g_Config.m_SvSpamprotection && pPlayer->m_LastChangeInfo &&
 				pPlayer->m_LastChangeInfo + Server()->TickSpeed() * g_Config.m_SvInfoChangeDelay > Server()->Tick())
