@@ -410,14 +410,10 @@ void CInfClassInfected::OnCharacterSnap(int SnappingClient)
 		{
 			if(m_pCharacter->GetHealthArmorSum() < 10)
 			{
-				CNetObj_Pickup *pP = Server()->SnapNewItem<CNetObj_Pickup>(m_pCharacter->GetHeartId());
-				if(!pP)
-					return;
+				int SnappingClientVersion = GameServer()->GetClientVersion(SnappingClient);
+				CSnapContext Context(SnappingClientVersion);
 
-				pP->m_X = Pos.x;
-				pP->m_Y = Pos.y - 60.0;
-				pP->m_Type = POWERUP_HEALTH;
-				pP->m_Subtype = 0;
+				GameServer()->SnapPickup(Context, m_pCharacter->GetHeartId(), {Pos.x, Pos.y - 60.0}, POWERUP_HEALTH, 0);
 			}
 		}
 	}

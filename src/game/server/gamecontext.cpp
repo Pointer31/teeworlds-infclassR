@@ -5050,14 +5050,7 @@ void CGameContext::OnSnap(int ClientId)
 				continue;
 		}
 
-		CNetObj_Pickup *pObj = Server()->SnapNewItem<CNetObj_Pickup>(m_LoveDots[i].m_SnapId);
-		if(pObj)
-		{
-			pObj->m_X = (int)m_LoveDots[i].m_Pos.x;
-			pObj->m_Y = (int)m_LoveDots[i].m_Pos.y;
-			pObj->m_Type = POWERUP_HEALTH;
-			pObj->m_Subtype = 0;
-		}
+		SnapPickup(Context, m_LoveDots[i].m_SnapId, m_LoveDots[i].m_Pos, POWERUP_HEALTH, 0);
 	}
 /* INFECTION MODIFICATION END *****************************************/
 	
