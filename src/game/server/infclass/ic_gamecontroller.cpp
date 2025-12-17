@@ -491,6 +491,88 @@ void CIcGameController::OnPlayerConnect(CPlayer *pPlayer)
 				Config()->m_AboutContactsMatrix, nullptr);
 		}
 	}
+
+	// new info for others
+	protocol7::CNetMsg_Sv_ClientInfo NewClientInfoMsg;
+	NewClientInfoMsg.m_ClientId = ClientId;
+	NewClientInfoMsg.m_Local = 0;
+	NewClientInfoMsg.m_Team = pPlayer->GetTeam();
+	NewClientInfoMsg.m_pName = Server()->ClientName(ClientId);
+	NewClientInfoMsg.m_pClan = Server()->ClientClan(ClientId);
+	NewClientInfoMsg.m_Country = Server()->ClientCountry(ClientId);
+	NewClientInfoMsg.m_Silent = false;
+
+	for(int p = 0; p < protocol7::NUM_SKINPARTS; p++)
+	{
+		NewClientInfoMsg.m_apSkinPartNames[p] = "";
+		NewClientInfoMsg.m_aUseCustomColors[p] = true;
+		NewClientInfoMsg.m_aSkinPartColors[p] = 1798004;
+	}
+	NewClientInfoMsg.m_aSkinPartColors[4] = 1869630;
+
+	// update client infos (others before local)
+	for(int i = 0; i < Server()->MaxClients(); ++i)
+	{
+		if(i == ClientId || !GameServer()->m_apPlayers[i] || !Server()->ClientIngame(i))
+			continue;
+
+		CPlayer *pPlayer2 = GameServer()->m_apPlayers[i];
+
+		if(Server()->IsSixup(i))
+			Server()->SendPackMsg(&NewClientInfoMsg, MSGFLAG_VITAL | MSGFLAG_NORECORD, i);
+
+		if(Server()->IsSixup(ClientId))
+		{
+			// existing infos for new player
+			protocol7::CNetMsg_Sv_ClientInfo ClientInfoMsg;
+			ClientInfoMsg.m_ClientId = i;
+			ClientInfoMsg.m_Local = 0;
+			ClientInfoMsg.m_Team = pPlayer2->GetTeam();
+			ClientInfoMsg.m_pName = Server()->ClientName(i);
+			ClientInfoMsg.m_pClan = Server()->ClientClan(i);
+			ClientInfoMsg.m_Country = Server()->ClientCountry(i);
+			ClientInfoMsg.m_Silent = 0;
+
+			for(int p = 0; p < protocol7::NUM_SKINPARTS; p++)
+			{
+				ClientInfoMsg.m_apSkinPartNames[p] = "";
+				ClientInfoMsg.m_aUseCustomColors[p] = true;
+				ClientInfoMsg.m_aSkinPartColors[p] = 1798004;
+			}
+			ClientInfoMsg.m_aSkinPartColors[4] = 1869630;
+
+			Server()->SendPackMsg(&ClientInfoMsg, MSGFLAG_VITAL | MSGFLAG_NORECORD, ClientId);
+			SendSkin7(i, ClientId);
+		}
+	}
+
+	// local info
+	if(Server()->IsSixup(ClientId))
+	{
+		NewClientInfoMsg.m_Local = 1;
+		Server()->SendPackMsg(&NewClientInfoMsg, MSGFLAG_VITAL | MSGFLAG_NORECORD, ClientId);
+		SendSkin7(ClientId);
+	}
+
+	if(Server()->IsSixup(ClientId))
+	{
+		{
+			protocol7::CNetMsg_Sv_GameInfo Msg;
+			Msg.m_GameFlags = m_GameFlags;
+			Msg.m_MatchCurrent = 1;
+			Msg.m_MatchNum = 0;
+			Msg.m_ScoreLimit = 0;
+			Msg.m_TimeLimit = GetTimeLimitMinutes();
+			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NORECORD, ClientId);
+		}
+
+		// /team is essential
+		{
+			protocol7::CNetMsg_Sv_CommandInfoRemove Msg;
+			Msg.m_pName = "team";
+			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NORECORD, ClientId);
+		}
+	}
 }
 
 void CIcGameController::OnPlayerDisconnect(CPlayer *pBasePlayer, EClientDropType Type, const char *pReason)
@@ -4257,6 +4339,34 @@ void CIcGameController::DoTeamChange(CPlayer *pBasePlayer, int Team, bool DoChat
 	{
 		PreparePlayerToJoin(pPlayer);
 	}
+
+	// local info
+	// new info for others
+	protocol7::CNetMsg_Sv_ClientInfo NewClientInfoMsg;
+	NewClientInfoMsg.m_ClientId = ClientId;
+	NewClientInfoMsg.m_Local = 0;
+	NewClientInfoMsg.m_Team = pPlayer->GetTeam();
+	NewClientInfoMsg.m_pName = Server()->ClientName(ClientId);
+	NewClientInfoMsg.m_pClan = Server()->ClientClan(ClientId);
+	NewClientInfoMsg.m_Country = Server()->ClientCountry(ClientId);
+	NewClientInfoMsg.m_Silent = false;
+
+	for(int p = 0; p < protocol7::NUM_SKINPARTS; p++)
+	{
+		NewClientInfoMsg.m_apSkinPartNames[p] = "";
+		NewClientInfoMsg.m_aUseCustomColors[p] = true;
+		NewClientInfoMsg.m_aSkinPartColors[p] = 1798004;
+	}
+	NewClientInfoMsg.m_aSkinPartColors[4] = 1869630;
+
+	for(int i = 0; i < Server()->MaxClients(); ++i)
+		if(Server()->IsSixup(i))
+		{
+			if (i == ClientId)
+				NewClientInfoMsg.m_Local = 1;
+			Server()->SendPackMsg(&NewClientInfoMsg, MSGFLAG_VITAL | MSGFLAG_NORECORD, i);
+			SendSkin7(ClientId, i);
+		}
 }
 
 void CIcGameController::GetPlayerCounter(int ClientException, int& NumHumans, int& NumInfected)
@@ -6607,22 +6717,14 @@ void CIcGameController::Snap(int SnappingClient)
 
 		pGameData->m_GameStartTick = m_RoundStartTick;
 		pGameData->m_GameStateFlags = 0;
-		// if(m_GameOverTick != -1)
-		// 	pGameData->m_GameStateFlags |= protocol7::GAMESTATEFLAG_GAMEOVER;
-		// if(m_SuddenDeath)
-		// 	pGameData->m_GameStateFlags |= protocol7::GAMESTATEFLAG_SUDDENDEATH;
-		// if(GameServer()->m_World.m_Paused)
-		// 	pGameData->m_GameStateFlags |= protocol7::GAMESTATEFLAG_PAUSED;
+		if(m_GameOverTick != -1)
+			pGameData->m_GameStateFlags |= protocol7::GAMESTATEFLAG_GAMEOVER;
+		if(m_SuddenDeath)
+			pGameData->m_GameStateFlags |= protocol7::GAMESTATEFLAG_SUDDENDEATH;
+		if(GameServer()->m_World.m_Paused)
+			pGameData->m_GameStateFlags |= protocol7::GAMESTATEFLAG_PAUSED;
 
 		pGameData->m_GameStateEndTick = 0;
-
-		// protocol7::CNetObj_GameDataRace *pRaceData = Server()->SnapNewItem<protocol7::CNetObj_GameDataRace>(0);
-		// if(!pRaceData)
-		// 	return;
-
-		// pRaceData->m_BestTime = round_to_int(m_CurrentRecord * 1000);
-		// pRaceData->m_Precision = 2;
-		// pRaceData->m_RaceFlags = protocol7::RACEFLAG_KEEP_WANTED_WEAPON;
 	}
 }
 
@@ -8721,7 +8823,7 @@ void CIcGameController::SendSkin7(int ClientId, int To) {
 		Msg.m_aSkinPartColors[1] = 4282053120;
 		Msg.m_aSkinPartColors[4] = 1078602;
 	} else {
-		Msg.m_aSkinPartColors[4] = 2424933;
+		Msg.m_aSkinPartColors[4] = 9634888;
 		Msg.m_aUseCustomColors[5] = false;
 	}
 
@@ -8742,6 +8844,7 @@ void CIcGameController::SendSkin7(int ClientId, int To) {
 		Msg.m_aSkinPartColors[0] = 10187898;
 		Msg.m_apSkinPartNames[1] = "stripes";
 		Msg.m_aSkinPartColors[1] = 4280868579;
+		Msg.m_aSkinPartColors[4] = 1944919;
 		break;
 	case EPlayerClass::Medic:
 		Msg.m_apSkinPartNames[0] = "standard";
@@ -8750,6 +8853,7 @@ void CIcGameController::SendSkin7(int ClientId, int To) {
 		Msg.m_aSkinPartColors[1] = 4293366490;
 		Msg.m_apSkinPartNames[2] = "twinbopp";
 		Msg.m_aSkinPartColors[2] = 15310519;
+		Msg.m_aSkinPartColors[4] = 37600;
 		break;
 	case EPlayerClass::Hero:
 		Msg.m_apSkinPartNames[0] = "standard";
@@ -8759,9 +8863,10 @@ void CIcGameController::SendSkin7(int ClientId, int To) {
 		break;
 	case EPlayerClass::Engineer:
 		Msg.m_apSkinPartNames[0] = "kitty";
-		Msg.m_aSkinPartColors[0] = 8681144;
+		Msg.m_aSkinPartColors[0] = 4612803;
 		Msg.m_apSkinPartNames[1] = "whisker";
-		Msg.m_aSkinPartColors[1] = 4286737883;
+		Msg.m_aSkinPartColors[1] = 4282737376;
+		Msg.m_aSkinPartColors[4] = 3827951;
 		break;
 	case EPlayerClass::Soldier:
 		Msg.m_apSkinPartNames[0] = "bear";
@@ -8769,24 +8874,28 @@ void CIcGameController::SendSkin7(int ClientId, int To) {
 		Msg.m_apSkinPartNames[1] = "bear";
 		Msg.m_aSkinPartColors[1] = 4279332520;
 		Msg.m_apSkinPartNames[2] = "hair";
+		Msg.m_aSkinPartColors[4] = 1147174;
 		break;
 	case EPlayerClass::Ninja:
 		Msg.m_apSkinPartNames[0] = "standard";
 		Msg.m_aSkinPartColors[0] = 4980736;
 		Msg.m_apSkinPartNames[1] = "coonfluff";
-		Msg.m_aSkinPartColors[1] = 1835263;
+		Msg.m_aSkinPartColors[1] = 4280868579;
+		Msg.m_aSkinPartColors[4] = 4280868579;
 		break;
 	case EPlayerClass::Sniper:
 		Msg.m_apSkinPartNames[0] = "standard";
 		Msg.m_aSkinPartColors[0] = 1944919;
 		Msg.m_apSkinPartNames[1] = "warpaint";
 		Msg.m_aSkinPartColors[1] = 4280868579;
+		Msg.m_aSkinPartColors[4] = 1944919;
 		break;
 	case EPlayerClass::Scientist:
 		Msg.m_apSkinPartNames[0] = "standard";
 		Msg.m_aSkinPartColors[0] = 6119331;
 		Msg.m_apSkinPartNames[1] = "toptri";
 		Msg.m_aSkinPartColors[1] = 4280868579;
+		Msg.m_aSkinPartColors[4] = 5792119;
 		break;
 	case EPlayerClass::Biologist:
 		Msg.m_apSkinPartNames[0] = "standard";
@@ -8796,49 +8905,63 @@ void CIcGameController::SendSkin7(int ClientId, int To) {
 		break;
 	case EPlayerClass::Looper:
 		Msg.m_apSkinPartNames[0] = "kitty";
-		Msg.m_aSkinPartColors[0] = 1048788;
+		Msg.m_aSkinPartColors[0] = 4587699;
 		Msg.m_apSkinPartNames[1] = "whisker";
-		Msg.m_aSkinPartColors[1] = 4279238911;
+		Msg.m_aSkinPartColors[1] = 4282712280;
 		break;
 	case EPlayerClass::Smoker:
 		Msg.m_apSkinPartNames[1] = "cammostripes";
 		break;
 	case EPlayerClass::Boomer:
+		Msg.m_aSkinPartColors[1] = 4282380821;
 		Msg.m_apSkinPartNames[1] = "saddo";
 		break;
 	case EPlayerClass::Hunter:
+		Msg.m_aSkinPartColors[1] = 4282053228;
 		Msg.m_apSkinPartNames[1] = "warpaint";
 		break;
 	case EPlayerClass::Bat:
 		Msg.m_apSkinPartNames[0] = "kitty";
+		Msg.m_aSkinPartColors[1] = 4282053228;
+		Msg.m_apSkinPartNames[1] = "whisker";
+		Msg.m_aSkinPartColors[4] = 1078748;
 		break;
 	case EPlayerClass::Ghost:
-		Msg.m_apSkinPartNames[1] = "mixture1";
+		Msg.m_aSkinPartColors[1] = 4282053228;
+		Msg.m_apSkinPartNames[1] = "twintri";
 		break;
 	case EPlayerClass::Spider:
+		Msg.m_aSkinPartColors[1] = 4282053228;
 		Msg.m_apSkinPartNames[1] = "whisker";
+		Msg.m_aSkinPartColors[4] = 16438949;
 		break;
 	case EPlayerClass::Ghoul:
-		Msg.m_apSkinPartNames[1] = "cammo1";
+		Msg.m_aSkinPartColors[1] = 4282053228;
+		Msg.m_apSkinPartNames[1] = "cammo2";
 		break;
 	case EPlayerClass::Slug:
 		Msg.m_apSkinPartNames[0] = "bear";
+		Msg.m_aSkinPartColors[1] = 4282053228;
+		Msg.m_apSkinPartNames[1] = "bear";
 		Msg.m_apSkinPartNames[2] = "hair";
 		break;
 	case EPlayerClass::Voodoo:
+		Msg.m_aSkinPartColors[1] = 4282053228;
 		Msg.m_apSkinPartNames[1] = "stripes";
 		break;
 	case EPlayerClass::Witch:
 		Msg.m_aSkinPartColors[0] = 65327;
-		Msg.m_aSkinPartColors[1] = 1716715520;
-		Msg.m_apSkinPartNames[1] = "tripledon";
+		Msg.m_aSkinPartColors[1] = 4278255447;
+		Msg.m_apSkinPartNames[1] = "donny";
 		Msg.m_aSkinPartColors[2] = 65327;
 		Msg.m_apSkinPartNames[2] = "unibop";
+		Msg.m_aSkinPartColors[4] = 680619;
 		break;
 	case EPlayerClass::Undead:
-		Msg.m_aSkinPartColors[0] = 2686767;
-		Msg.m_aSkinPartColors[1] = 1716715520;
+		Msg.m_aSkinPartColors[0] = 2883384;
+		Msg.m_aSkinPartColors[1] = 4281073509;
 		Msg.m_apSkinPartNames[1] = "stripe";
+		Msg.m_aSkinPartColors[4] = 1383225;
 		break;
 	case EPlayerClass::Tank:
 		Msg.m_aSkinPartColors[0] = 2686767;
@@ -8846,6 +8969,9 @@ void CIcGameController::SendSkin7(int ClientId, int To) {
 		break;
 	case EPlayerClass::Spitter:
 		Msg.m_apSkinPartNames[0] = "kitty";
+		Msg.m_aSkinPartColors[1] = 4282053228;
+		Msg.m_apSkinPartNames[1] = "whisker";
+		Msg.m_aSkinPartColors[4] = 6387018;
 		break;
 	
 	default:

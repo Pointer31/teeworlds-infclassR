@@ -9,6 +9,7 @@
 
 #include <game/server/gamecontext.h>
 #include <game/server/gamecontroller.h>
+#include <engine/shared/protocolglue.h>
 
 MACRO_ALLOC_POOL_ID_IMPL(CPlayer, MAX_CLIENTS)
 
@@ -248,15 +249,20 @@ void CPlayer::Snap(int SnappingClient)
 		if(!pPlayerInfo)
 			return;
 
-		pPlayerInfo->m_PlayerFlags = 0;//PlayerFlags_SixToSeven(m_PlayerFlags);
-		// if(SnappingClientVersion >= VERSION_DDRACE && (m_PlayerFlags & PLAYERFLAG_AIM))
-		// 	pPlayerInfo->m_PlayerFlags |= protocol7::PLAYERFLAG_AIM;
-		// if(Server()->IsRconAuthed(m_ClientId) && ((SnappingClient >= 0 && Server()->IsRconAuthed(SnappingClient)) || !Server()->HasAuthHidden(m_ClientId)))
-		// 	pPlayerInfo->m_PlayerFlags |= protocol7::PLAYERFLAG_ADMIN;
-
-		// Times are in milliseconds for 0.7
-		pPlayerInfo->m_Score = PlayerInfoScore;//m_Score.has_value() ? GameServer()->Score()->PlayerData(m_ClientId)->m_BestTime * 1000 : -1;
+		pPlayerInfo->m_PlayerFlags = PlayerFlags_SixToSeven(m_PlayerFlags);
+		pPlayerInfo->m_Score = PlayerInfoScore;
 		pPlayerInfo->m_Latency = Latency;
+
+		if(m_ClientId == SnappingClient && m_Team == TEAM_SPECTATORS) {
+			protocol7::CNetObj_SpectatorInfo *pSpectatorInfo = Server()->SnapNewItem<protocol7::CNetObj_SpectatorInfo>(m_ClientId);
+			if(!pSpectatorInfo)
+				return;
+
+			pSpectatorInfo->m_SpecMode = m_SpectatorId == SPEC_FREEVIEW ? protocol7::SPEC_FREEVIEW : protocol7::SPEC_PLAYER;
+			pSpectatorInfo->m_SpectatorId = m_SpectatorId;
+			pSpectatorInfo->m_X = m_ViewPos.x;
+			pSpectatorInfo->m_Y = m_ViewPos.y;
+		}
 	}
 }
 
