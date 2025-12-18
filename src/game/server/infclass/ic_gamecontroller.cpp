@@ -519,7 +519,10 @@ void CIcGameController::OnPlayerConnect(CPlayer *pPlayer)
 		CPlayer *pPlayer2 = GameServer()->m_apPlayers[i];
 
 		if(Server()->IsSixup(i))
+		{
 			Server()->SendPackMsg(&NewClientInfoMsg, MSGFLAG_VITAL | MSGFLAG_NORECORD, i);
+			SendSkin7(ClientId, i);
+		}
 
 		if(Server()->IsSixup(ClientId))
 		{
@@ -551,7 +554,7 @@ void CIcGameController::OnPlayerConnect(CPlayer *pPlayer)
 	{
 		NewClientInfoMsg.m_Local = 1;
 		Server()->SendPackMsg(&NewClientInfoMsg, MSGFLAG_VITAL | MSGFLAG_NORECORD, ClientId);
-		SendSkin7(ClientId);
+		SendSkin7(ClientId, ClientId);
 	}
 
 	if(Server()->IsSixup(ClientId))
