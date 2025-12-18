@@ -291,7 +291,7 @@ EPlayerClass CIcPlayerClass::GetPlayerClass() const
 void CIcPlayerClass::OnPlayerClassChanged()
 {
 	UpdateSkin();
-	SetNormalEmote(EMOTE_NORMAL);
+	IsZombie() ? SetNormalEmote(EMOTE_ANGRY) : SetNormalEmote(EMOTE_NORMAL); 
 
 	// Enable hook protection by default for both infected and humans on class changed
 	m_pPlayer->SetHookProtection(true);
