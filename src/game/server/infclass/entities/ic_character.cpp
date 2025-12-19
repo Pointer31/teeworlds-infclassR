@@ -1995,6 +1995,36 @@ void CIcCharacter::HandleMapMenu()
 		}
 	}
 
+	if (Server()->IsSixup(GetCid())) {
+		static int previousSelected = -1;
+		if (HoveredMenuItem != previousSelected) {
+			char aBuf[512];
+			char bBuf[512];
+			str_format(aBuf, sizeof(aBuf), "Choose your class\n\n");
+
+			for (int i = 0; i < CMapConverter::NUM_MENUCLASS; i++) {
+				EPlayerClass NewClass = CIcGameController::MenuClassToPlayerClass(i);
+				CLASS_AVAILABILITY Availability = GameController()->GetPlayerClassAvailability(NewClass, pPlayer);
+				const char *pClassName = (i == CMapConverter::MENUCLASS_RANDOM ? "Random" : CIcGameController::GetClassDisplayName(NewClass));
+
+				str_format(bBuf, sizeof(bBuf), "%s", aBuf);
+				if (i == HoveredMenuItem)
+					if (Availability == CLASS_AVAILABILITY::AVAILABLE || i == CMapConverter::MENUCLASS_RANDOM)
+						str_format(aBuf, sizeof(aBuf), "%s> %s <\n", bBuf, pClassName);
+					else
+						str_format(aBuf, sizeof(aBuf), "%s⊗> %s <\n", bBuf, pClassName);
+				else
+					if (Availability == CLASS_AVAILABILITY::AVAILABLE || i == CMapConverter::MENUCLASS_RANDOM)
+						str_format(aBuf, sizeof(aBuf), "%s%s\n", bBuf, pClassName);
+					else
+						str_format(aBuf, sizeof(aBuf), "%s⊗%s\n", bBuf, pClassName);
+					
+			}
+			GameServer()->SendMOTD(GetCid(), aBuf);
+		}
+		previousSelected = HoveredMenuItem;
+	}
+
 	if(pPlayer->MapMenuClickable() && m_Input.m_Fire & 1)
 	{
 		HandleMapMenuClicked();

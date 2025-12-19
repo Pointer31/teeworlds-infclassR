@@ -503,6 +503,10 @@ void CIcPlayer::CloseMapMenu()
 {
 	m_MapMenu = 0;
 	m_MapMenuTick = -1;
+
+	if (Server()->IsSixup(GetCid())) {
+		GameServer()->SendMOTD(GetCid(), "");
+	}
 }
 
 bool CIcPlayer::MapMenuClickable()
