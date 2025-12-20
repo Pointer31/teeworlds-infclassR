@@ -142,7 +142,7 @@ void CHeroFlag::Snap(int SnappingClient)
 		const vec2 DecorationsPivot(m_Pos.x, m_Pos.y - 20);
 		const float Radius = 38;
 
-		CSnapContext Context(SnappingClientVersion);
+		CSnapContext Context(SnappingClientVersion, Server()->IsSixup(SnappingClient));
 		for(int i = 0; i < ms_SHIELD_COUNT; i++)
 		{
 			vec2 PosStart = DecorationsPivot + vec2(cos(AngleStart + AngleStep*i), sin(AngleStart + AngleStep*i)) * Radius;

@@ -411,7 +411,7 @@ void CInfClassInfected::OnCharacterSnap(int SnappingClient)
 			if(m_pCharacter->GetHealthArmorSum() < 10)
 			{
 				int SnappingClientVersion = GameServer()->GetClientVersion(SnappingClient);
-				CSnapContext Context(SnappingClientVersion);
+				CSnapContext Context(SnappingClientVersion, Server()->IsSixup(SnappingClient));
 
 				GameServer()->SnapPickup(Context, m_pCharacter->GetHeartId(), {Pos.x, Pos.y - 60.0}, POWERUP_HEALTH, 0);
 			}

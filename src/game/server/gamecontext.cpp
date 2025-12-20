@@ -411,6 +411,10 @@ bool CGameContext::SnapPickup(const CSnapContext &Context, int SnapId, const vec
 			pPickup->m_Type = SubType == WEAPON_SHOTGUN ? protocol7::PICKUP_SHOTGUN : SubType == WEAPON_GRENADE ? protocol7::PICKUP_GRENADE : protocol7::PICKUP_LASER;
 		else if(Type == POWERUP_NINJA)
 			pPickup->m_Type = protocol7::PICKUP_NINJA;
+		else if(Type == POWERUP_HEALTH)
+			pPickup->m_Type = protocol7::PICKUP_HEALTH;
+		else if(Type == POWERUP_ARMOR)
+			pPickup->m_Type = protocol7::PICKUP_ARMOR;
 	}
 	else if(Context.GetClientVersion() >= VERSION_DDNET_ENTITY_NETOBJS)
 	{
@@ -4996,7 +5000,7 @@ void CGameContext::OnSnap(int ClientId)
 
 /* INFECTION MODIFICATION START ***************************************/
 	int SnappingClientVersion = GetClientVersion(ClientId);
-	CSnapContext Context(SnappingClientVersion);
+	CSnapContext Context(SnappingClientVersion, Server()->IsSixup(ClientId));
 	//Snap laser dots
 	for(int i=0; i < m_LaserDots.size(); i++)
 	{

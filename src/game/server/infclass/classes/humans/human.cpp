@@ -693,7 +693,7 @@ void CInfClassHuman::OnCharacterSnap(int SnappingClient)
 					}
 
 					int SnappingClientVersion = GameServer()->GetClientVersion(SnappingClient);
-					CSnapContext Context(SnappingClientVersion);
+					CSnapContext Context(SnappingClientVersion, Server()->IsSixup(SnappingClient));
 
 					const vec2 Pos = m_pCharacter->GetPos();
 					GameServer()->SnapPickup(Context, m_pCharacter->GetHeartId(), {Pos.x, Pos.y - 60.0}, 
@@ -704,7 +704,7 @@ void CInfClassHuman::OnCharacterSnap(int SnappingClient)
 				if(m_pCharacter->IsPoisoned())
 				{
 					int SnappingClientVersion = GameServer()->GetClientVersion(SnappingClient);
-					CSnapContext Context(SnappingClientVersion);
+					CSnapContext Context(SnappingClientVersion, Server()->IsSixup(SnappingClient));
 
 					const vec2 Pos = m_pCharacter->GetPos();
 					GameServer()->SnapPickup(Context, m_pCharacter->GetHeartId(), {Pos.x, Pos.y - 60.0}, POWERUP_HEALTH, 0);

@@ -127,7 +127,7 @@ void CMercenaryBomb::Snap(int SnappingClient)
 	float AngleStep = 2.0f * pi / static_cast<float>(CMercenaryBomb::NUM_SIDE);
 	float R = 50.0f * static_cast<float>(m_Load) / Config()->m_InfMercBombs;
 
-	CSnapContext Context(SnappingClientVersion);
+	CSnapContext Context(SnappingClientVersion, Server()->IsSixup(SnappingClient));
 	for(int i = 0; i < CMercenaryBomb::NUM_SIDE; i++)
 	{
 		vec2 PosStart = m_Pos + vec2(R * cos(AngleStart + AngleStep*i), R * sin(AngleStart + AngleStep*i));

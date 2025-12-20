@@ -79,7 +79,7 @@ void CControlPoint::Snap(int SnappingClient)
 			int SnappingClientVersion = GameServer()->GetClientVersion(SnappingClient);
 			int NetworkType = POWERUP_ARMOR;
 			int Subtype = 0;
-			GameServer()->SnapPickup(CSnapContext(SnappingClientVersion), GetId(), m_Pos, NetworkType, Subtype);
+			GameServer()->SnapPickup(CSnapContext(SnappingClientVersion, Server()->IsSixup(SnappingClient)), GetId(), m_Pos, NetworkType, Subtype);
 		}
 	}
 }

@@ -309,7 +309,7 @@ void CIcPickup::Snap(int SnappingClient)
 		return;
 
 	int SnappingClientVersion = GameServer()->GetClientVersion(SnappingClient);
-	GameServer()->SnapPickup(CSnapContext(SnappingClientVersion), GetId(), m_Pos, NetworkType, Subtype);
+	GameServer()->SnapPickup(CSnapContext(SnappingClientVersion, Server()->IsSixup(SnappingClient)), GetId(), m_Pos, NetworkType, Subtype);
 }
 
 void CIcPickup::SnapAsFlag()
