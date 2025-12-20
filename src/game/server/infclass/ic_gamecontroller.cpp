@@ -4343,33 +4343,12 @@ void CIcGameController::DoTeamChange(CPlayer *pBasePlayer, int Team, bool DoChat
 		PreparePlayerToJoin(pPlayer);
 	}
 
-	// local info
-	// new info for others
-	protocol7::CNetMsg_Sv_ClientInfo NewClientInfoMsg;
-	NewClientInfoMsg.m_ClientId = ClientId;
-	NewClientInfoMsg.m_Local = 0;
-	NewClientInfoMsg.m_Team = pPlayer->GetTeam();
-	NewClientInfoMsg.m_pName = Server()->ClientName(ClientId);
-	NewClientInfoMsg.m_pClan = Server()->ClientClan(ClientId);
-	NewClientInfoMsg.m_Country = Server()->ClientCountry(ClientId);
-	NewClientInfoMsg.m_Silent = false;
-
-	for(int p = 0; p < protocol7::NUM_SKINPARTS; p++)
-	{
-		NewClientInfoMsg.m_apSkinPartNames[p] = "";
-		NewClientInfoMsg.m_aUseCustomColors[p] = true;
-		NewClientInfoMsg.m_aSkinPartColors[p] = 1798004;
-	}
-	NewClientInfoMsg.m_aSkinPartColors[4] = 1869630;
-
-	for(int i = 0; i < Server()->MaxClients(); ++i)
-		if(Server()->IsSixup(i))
-		{
-			if (i == ClientId)
-				NewClientInfoMsg.m_Local = 1;
-			Server()->SendPackMsg(&NewClientInfoMsg, MSGFLAG_VITAL | MSGFLAG_NORECORD, i);
-			SendSkin7(ClientId, i);
-		}
+	protocol7::CNetMsg_Sv_Team Msg;
+	Msg.m_ClientId = ClientId;
+	Msg.m_Team = pPlayer->GetTeam();
+	Msg.m_Silent = false;
+	Msg.m_CooldownTick = Server()->Tick() + Server()->TickSpeed() * 3;
+	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NORECORD, -1);
 }
 
 void CIcGameController::GetPlayerCounter(int ClientException, int& NumHumans, int& NumInfected)
