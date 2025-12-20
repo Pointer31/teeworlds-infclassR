@@ -8795,7 +8795,7 @@ void CIcGameController::SendSkin7(int ClientId, int To) {
 		Msg.m_apSkinPartNames[p] = "";
 		Msg.m_aUseCustomColors[p] = true;
 		if (pPlayer->GetCharacterClass()->IsZombie()) {
-			Msg.m_aSkinPartColors[p] = 3997491;
+			Msg.m_aSkinPartColors[p] = 3866419;
 		} else {
 			Msg.m_aSkinPartColors[p] = 1798004;
 		}
@@ -8803,7 +8803,8 @@ void CIcGameController::SendSkin7(int ClientId, int To) {
 
 	if (pPlayer->GetCharacterClass()->IsZombie()) {
 		Msg.m_aSkinPartColors[1] = 4282053120;
-		Msg.m_aSkinPartColors[4] = 1078602;
+		Msg.m_aSkinPartColors[4] = 351569;
+		// Msg.m_aSkinPartColors[4] = 1078602;
 	} else {
 		Msg.m_aSkinPartColors[4] = 9634888;
 		Msg.m_aUseCustomColors[5] = false;
@@ -8948,6 +8949,8 @@ void CIcGameController::SendSkin7(int ClientId, int To) {
 	case EPlayerClass::Tank:
 		Msg.m_aSkinPartColors[0] = 2686767;
 		Msg.m_apSkinPartNames[0] = "spiky";
+		Msg.m_aSkinPartColors[1] = 1093205782;
+		Msg.m_apSkinPartNames[1] = "cammo1";
 		break;
 	case EPlayerClass::Spitter:
 		Msg.m_apSkinPartNames[0] = "kitty";
