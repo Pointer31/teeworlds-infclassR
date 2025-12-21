@@ -1977,6 +1977,12 @@ void CGameContext::OnClientDrop(int ClientId, EClientDropType Type, const char *
 		CGameContext::m_ClientMuted[i][ClientId] = false;
 	}
 
+	protocol7::CNetMsg_Sv_ClientDrop Msg;
+	Msg.m_ClientId = ClientId;
+	Msg.m_pReason = pReason;
+	Msg.m_Silent = true;
+	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NORECORD, -1);
+
 	Server()->ExpireServerInfo();
 }
 

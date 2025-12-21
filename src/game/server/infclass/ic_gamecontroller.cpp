@@ -500,7 +500,7 @@ void CIcGameController::OnPlayerConnect(CPlayer *pPlayer)
 	NewClientInfoMsg.m_pName = Server()->ClientName(ClientId);
 	NewClientInfoMsg.m_pClan = Server()->ClientClan(ClientId);
 	NewClientInfoMsg.m_Country = Server()->ClientCountry(ClientId);
-	NewClientInfoMsg.m_Silent = false;
+	NewClientInfoMsg.m_Silent = true;
 
 	for(int p = 0; p < protocol7::NUM_SKINPARTS; p++)
 	{
@@ -562,11 +562,21 @@ void CIcGameController::OnPlayerConnect(CPlayer *pPlayer)
 		{
 			protocol7::CNetMsg_Sv_GameInfo Msg;
 			Msg.m_GameFlags = m_GameFlags;
-			Msg.m_MatchCurrent = 1;
-			Msg.m_MatchNum = 0;
+			Msg.m_MatchCurrent = m_RoundCount+1;
+			Msg.m_MatchNum = g_Config.m_SvRoundsPerMap;
 			Msg.m_ScoreLimit = 0;
 			Msg.m_TimeLimit = GetTimeLimitMinutes();
 			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NORECORD, ClientId);
+		}
+		{
+			protocol7::CNetMsg_Sv_ServerSettings MsgSettings;
+			MsgSettings.m_KickVote = 1;
+			MsgSettings.m_KickMin = 0;
+			MsgSettings.m_SpecVote = g_Config.m_SvVoteSpectate;
+			MsgSettings.m_TeamLock = 0;
+			MsgSettings.m_TeamBalance = 0;
+			MsgSettings.m_PlayerSlots = MAX_CLIENTS - maximum(g_Config.m_SvSpectatorSlots, g_Config.m_SvReservedSlots);
+			Server()->SendPackMsg(&MsgSettings, MSGFLAG_VITAL | MSGFLAG_NORECORD, ClientId);
 		}
 
 		// /team is essential
@@ -4230,6 +4240,18 @@ void CIcGameController::StartRound()
 
 	SaveRoundRules();
 	OnStartRound();
+
+	// send new information to 0.7 clients
+	for(int i = 0; i < Server()->MaxClients(); ++i)
+		if (Server()->IsSixup(i) ){
+			protocol7::CNetMsg_Sv_GameInfo Msg;
+			Msg.m_GameFlags = m_GameFlags;
+			Msg.m_MatchCurrent = m_RoundCount+1;
+			Msg.m_MatchNum = g_Config.m_SvRoundsPerMap;
+			Msg.m_ScoreLimit = 0;
+			Msg.m_TimeLimit = GetTimeLimitMinutes();
+			Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NORECORD, i);
+		}
 }
 
 void CIcGameController::ResetRoundData()
@@ -4346,7 +4368,7 @@ void CIcGameController::DoTeamChange(CPlayer *pBasePlayer, int Team, bool DoChat
 	protocol7::CNetMsg_Sv_Team Msg;
 	Msg.m_ClientId = ClientId;
 	Msg.m_Team = pPlayer->GetTeam();
-	Msg.m_Silent = false;
+	Msg.m_Silent = true;
 	Msg.m_CooldownTick = Server()->Tick() + Server()->TickSpeed() * 3;
 	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NORECORD, -1);
 }
