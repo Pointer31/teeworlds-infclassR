@@ -4932,6 +4932,39 @@ CBaseBotPlayer *CIcGameController::AddBot(int Team)
 
 	pPlayer->UpdateName();
 
+	// new info for others
+	protocol7::CNetMsg_Sv_ClientInfo NewClientInfoMsg;
+	NewClientInfoMsg.m_ClientId = pPlayer->GetCid();
+	NewClientInfoMsg.m_Local = 0;
+	NewClientInfoMsg.m_Team = pPlayer->GetTeam();
+	NewClientInfoMsg.m_pName = Server()->ClientName(pPlayer->GetCid());
+	NewClientInfoMsg.m_pClan = "";
+	NewClientInfoMsg.m_Country = 0;
+	NewClientInfoMsg.m_Silent = true;
+
+	for(int p = 0; p < protocol7::NUM_SKINPARTS; p++)
+	{
+		NewClientInfoMsg.m_apSkinPartNames[p] = "";
+		NewClientInfoMsg.m_aUseCustomColors[p] = true;
+		NewClientInfoMsg.m_aSkinPartColors[p] = 1798004;
+	}
+	NewClientInfoMsg.m_aSkinPartColors[4] = 1869630;
+
+	// update client infos (others before local)
+	for(int i = 0; i < Server()->MaxClients(); ++i)
+	{
+		if(i == pPlayer->GetCid() || !GameServer()->m_apPlayers[i] || !Server()->ClientIngame(i))
+			continue;
+
+		CPlayer *pPlayer2 = GameServer()->m_apPlayers[i];
+
+		if(Server()->IsSixup(i))
+		{
+			Server()->SendPackMsg(&NewClientInfoMsg, MSGFLAG_VITAL | MSGFLAG_NORECORD, i);
+			SendSkin7(pPlayer->GetCid(), i);
+		}
+	}
+
 	return pPlayer;
 }
 
