@@ -9017,6 +9017,14 @@ void CIcGameController::SendSkin7(int ClientId, int To) {
 	default:
 		break;
 	}
+
+	// set teeinfo to appropriate values
+	for(int p = 0; p < protocol7::NUM_SKINPARTS; p++)
+	{
+		str_copy(pPlayer->m_TeeInfos.m_apSkinPartNames[p], Msg.m_apSkinPartNames[p], 24);
+		pPlayer->m_TeeInfos.m_aUseCustomColors[p] = Msg.m_aUseCustomColors[p];
+		pPlayer->m_TeeInfos.m_aSkinPartColors[p] = Msg.m_aSkinPartColors[p];
+	}
 	
 	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL | MSGFLAG_NORECORD, To);
 }
