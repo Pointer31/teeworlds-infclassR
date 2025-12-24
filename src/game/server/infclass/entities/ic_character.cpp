@@ -1919,88 +1919,100 @@ void CIcCharacter::HandleMapMenu()
 		return;
 	}
 
-	vec2 CursorPos = vec2(m_Input.m_TargetX, m_Input.m_TargetY);
-	if(length(CursorPos) < 100.0f)
+	if (!Server()->IsSixup(GetCid()))
 	{
-		pPlayer->m_MapMenuItem = -1;
-		GameServer()->SendBroadcast_Localization(GetCid(),
-			EBroadcastPriority::INTERFACE, BROADCAST_DURATION_REALTIME,
-			_("Choose your class"), NULL);
-
-		return;
-	}
-
-	float Angle = 2.0f * pi + atan2(CursorPos.x, -CursorPos.y);
-	float AngleStep = 2.0f * pi / static_cast<float>(CMapConverter::NUM_MENUCLASS);
-	int HoveredMenuItem = ((int)((Angle + AngleStep / 2.0f) / AngleStep)) % CMapConverter::NUM_MENUCLASS;
-	if(HoveredMenuItem == CMapConverter::MENUCLASS_RANDOM)
-	{
-		GameServer()->SendBroadcast_Localization(GetCid(),
-			EBroadcastPriority::INTERFACE, BROADCAST_DURATION_REALTIME, _("Random choice"), nullptr);
-		pPlayer->m_MapMenuItem = HoveredMenuItem;
-	}
-	else
-	{
-		EPlayerClass NewClass = CIcGameController::MenuClassToPlayerClass(HoveredMenuItem);
-		CLASS_AVAILABILITY Availability = GameController()->GetPlayerClassAvailability(NewClass, pPlayer);
-
-		switch(Availability)
+		vec2 CursorPos = vec2(m_Input.m_TargetX, m_Input.m_TargetY);
+		if(length(CursorPos) < 100.0f)
 		{
-		case CLASS_AVAILABILITY::AVAILABLE:
-		{
-			const char *pClassName = CIcGameController::GetClassDisplayName(NewClass);
+			pPlayer->m_MapMenuItem = -1;
 			GameServer()->SendBroadcast_Localization(GetCid(),
 				EBroadcastPriority::INTERFACE, BROADCAST_DURATION_REALTIME,
-				pClassName, nullptr);
-		}
-		break;
-		case CLASS_AVAILABILITY::PICKED_PREVIOUSLY:
-		{
-			GameServer()->SendBroadcast_Localization(GetCid(),
-				EBroadcastPriority::INTERFACE, BROADCAST_DURATION_REALTIME,
-				_("You can't pick the same class again"), nullptr);
-		}
-		break;
-		case CLASS_AVAILABILITY::DISABLED:
-			GameServer()->SendBroadcast_Localization(GetCid(),
-				EBroadcastPriority::INTERFACE, BROADCAST_DURATION_REALTIME,
-				_("The class is disabled"), nullptr);
-			break;
-		case CLASS_AVAILABILITY::NEED_MORE_PLAYERS:
-		{
-			int MinPlayers = GameController()->GetMinPlayersForClass(NewClass);
-			GameServer()->SendBroadcast_Localization_P(GetCid(),
-				EBroadcastPriority::INTERFACE, BROADCAST_DURATION_REALTIME,
-				MinPlayers,
-				_P("Need at least {int:MinPlayers} player",
-					"Need at least {int:MinPlayers} players", MinPlayers),
-				"MinPlayers", &MinPlayers,
-				nullptr);
-		}
-		break;
-		case CLASS_AVAILABILITY::LIMIT_EXCEEDED:
-			GameServer()->SendBroadcast_Localization(GetCid(),
-				EBroadcastPriority::INTERFACE, BROADCAST_DURATION_REALTIME,
-				_("The class limit exceeded"), nullptr);
-			break;
+				_("Choose your class"), NULL);
+
+			return;
 		}
 
-		if(Availability == CLASS_AVAILABILITY::AVAILABLE)
+		float Angle = 2.0f * pi + atan2(CursorPos.x, -CursorPos.y);
+		float AngleStep = 2.0f * pi / static_cast<float>(CMapConverter::NUM_MENUCLASS);
+		int HoveredMenuItem = ((int)((Angle + AngleStep / 2.0f) / AngleStep)) % CMapConverter::NUM_MENUCLASS;
+		if(HoveredMenuItem == CMapConverter::MENUCLASS_RANDOM)
 		{
+			GameServer()->SendBroadcast_Localization(GetCid(),
+				EBroadcastPriority::INTERFACE, BROADCAST_DURATION_REALTIME, _("Random choice"), nullptr);
 			pPlayer->m_MapMenuItem = HoveredMenuItem;
 		}
 		else
 		{
-			pPlayer->m_MapMenuItem = -1;
+			EPlayerClass NewClass = CIcGameController::MenuClassToPlayerClass(HoveredMenuItem);
+			CLASS_AVAILABILITY Availability = GameController()->GetPlayerClassAvailability(NewClass, pPlayer);
+
+			switch(Availability)
+			{
+			case CLASS_AVAILABILITY::AVAILABLE:
+			{
+				const char *pClassName = CIcGameController::GetClassDisplayName(NewClass);
+				GameServer()->SendBroadcast_Localization(GetCid(),
+					EBroadcastPriority::INTERFACE, BROADCAST_DURATION_REALTIME,
+					pClassName, nullptr);
+			}
+			break;
+			case CLASS_AVAILABILITY::PICKED_PREVIOUSLY:
+			{
+				GameServer()->SendBroadcast_Localization(GetCid(),
+					EBroadcastPriority::INTERFACE, BROADCAST_DURATION_REALTIME,
+					_("You can't pick the same class again"), nullptr);
+			}
+			break;
+			case CLASS_AVAILABILITY::DISABLED:
+				GameServer()->SendBroadcast_Localization(GetCid(),
+					EBroadcastPriority::INTERFACE, BROADCAST_DURATION_REALTIME,
+					_("The class is disabled"), nullptr);
+				break;
+			case CLASS_AVAILABILITY::NEED_MORE_PLAYERS:
+			{
+				int MinPlayers = GameController()->GetMinPlayersForClass(NewClass);
+				GameServer()->SendBroadcast_Localization_P(GetCid(),
+					EBroadcastPriority::INTERFACE, BROADCAST_DURATION_REALTIME,
+					MinPlayers,
+					_P("Need at least {int:MinPlayers} player",
+						"Need at least {int:MinPlayers} players", MinPlayers),
+					"MinPlayers", &MinPlayers,
+					nullptr);
+			}
+			break;
+			case CLASS_AVAILABILITY::LIMIT_EXCEEDED:
+				GameServer()->SendBroadcast_Localization(GetCid(),
+					EBroadcastPriority::INTERFACE, BROADCAST_DURATION_REALTIME,
+					_("The class limit exceeded"), nullptr);
+				break;
+			}
+
+			if(Availability == CLASS_AVAILABILITY::AVAILABLE)
+			{
+				pPlayer->m_MapMenuItem = HoveredMenuItem;
+			}
+			else
+			{
+				pPlayer->m_MapMenuItem = -1;
+			}
 		}
 	}
+	else
+	{
+		int HoveredMenuItem = (((float)m_Input.m_TargetY / 41.0f) + ((float)CMapConverter::NUM_MENUCLASS / 2.0f) + 0.4f);
 
-	if (Server()->IsSixup(GetCid())) {
-		static int previousSelected = -1;
-		if (HoveredMenuItem != previousSelected) {
+		if (HoveredMenuItem < 0) 
+			HoveredMenuItem = 0;
+		if (HoveredMenuItem >= CMapConverter::NUM_MENUCLASS) 
+			HoveredMenuItem = CMapConverter::NUM_MENUCLASS-1;
+		
+		int previousSelected = pPlayer->m_MapMenuItem;
+		pPlayer->m_MapMenuItem = HoveredMenuItem;
+
+		if (pPlayer->m_MapMenuItem != previousSelected) {
 			char aBuf[512];
 			char bBuf[512];
-			str_format(aBuf, sizeof(aBuf), "Choose your class\n\n");
+			str_format(aBuf, sizeof(aBuf), "Choose your class\n\n\n");
 
 			for (int i = 0; i < CMapConverter::NUM_MENUCLASS; i++) {
 				EPlayerClass NewClass = CIcGameController::MenuClassToPlayerClass(i);
@@ -2010,19 +2022,18 @@ void CIcCharacter::HandleMapMenu()
 				str_format(bBuf, sizeof(bBuf), "%s", aBuf);
 				if (i == HoveredMenuItem)
 					if (Availability == CLASS_AVAILABILITY::AVAILABLE || i == CMapConverter::MENUCLASS_RANDOM)
-						str_format(aBuf, sizeof(aBuf), "%s> %s <\n", bBuf, pClassName);
+						str_format(aBuf, sizeof(aBuf), "%s> %s <\n\n", bBuf, pClassName);
 					else
-						str_format(aBuf, sizeof(aBuf), "%s⊗> %s <\n", bBuf, pClassName);
+						str_format(aBuf, sizeof(aBuf), "%s⊗> %s <\n\n", bBuf, pClassName);
 				else
 					if (Availability == CLASS_AVAILABILITY::AVAILABLE || i == CMapConverter::MENUCLASS_RANDOM)
-						str_format(aBuf, sizeof(aBuf), "%s%s\n", bBuf, pClassName);
+						str_format(aBuf, sizeof(aBuf), "%s%s\n\n", bBuf, pClassName);
 					else
-						str_format(aBuf, sizeof(aBuf), "%s⊗%s\n", bBuf, pClassName);
+						str_format(aBuf, sizeof(aBuf), "%s⊗%s\n\n", bBuf, pClassName);
 					
 			}
 			GameServer()->SendMOTD(GetCid(), aBuf);
 		}
-		previousSelected = HoveredMenuItem;
 	}
 
 	if(pPlayer->MapMenuClickable() && m_Input.m_Fire & 1)
