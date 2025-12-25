@@ -2012,7 +2012,30 @@ void CIcCharacter::HandleMapMenu()
 		if (pPlayer->m_MapMenuItem != previousSelected) {
 			char aBuf[512];
 			char bBuf[512];
-			str_format(aBuf, sizeof(aBuf), "Choose your class\n\n\n");
+			char Reason[128] = "";
+			EPlayerClass NewClass = CIcGameController::MenuClassToPlayerClass(HoveredMenuItem);
+			CLASS_AVAILABILITY Availability = GameController()->GetPlayerClassAvailability(NewClass, pPlayer);
+
+			if(HoveredMenuItem != CMapConverter::MENUCLASS_RANDOM)
+				switch(Availability)
+				{
+				case CLASS_AVAILABILITY::AVAILABLE:
+					break;
+				case CLASS_AVAILABILITY::PICKED_PREVIOUSLY:
+					str_format(Reason, sizeof(Reason), "You can't pick the same class again");
+					break;
+				case CLASS_AVAILABILITY::DISABLED:
+					str_format(Reason, sizeof(Reason), "The class is disabled");
+					break;
+				case CLASS_AVAILABILITY::NEED_MORE_PLAYERS:
+					// int MinPlayers = GameController()->GetMinPlayersForClass(NewClass);
+					str_format(Reason, sizeof(Reason), "Needs more players");
+					break;
+				case CLASS_AVAILABILITY::LIMIT_EXCEEDED:
+					str_format(Reason, sizeof(Reason), "The class limit exceeded");
+					break;
+				}
+			str_format(aBuf, sizeof(aBuf), "Choose your class\n%s\n\n", Reason);
 
 			for (int i = 0; i < CMapConverter::NUM_MENUCLASS; i++) {
 				EPlayerClass NewClass = CIcGameController::MenuClassToPlayerClass(i);
