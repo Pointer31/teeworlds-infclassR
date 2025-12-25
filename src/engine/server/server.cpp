@@ -3694,13 +3694,14 @@ void CServer::ConStatus(IConsole::IResult *pResult, void *pUser)
 								pThis->m_aClients[i].m_Authed == AUTHED_MOD   ? 1 :
 																				0;
 
-				str_format(aBuf, sizeof(aBuf), "(#%02i) %s: [antispoof=%d] [login=%d] [level=%d] [ip=%s] [version=%d] [inf=%d]",
+				str_format(aBuf, sizeof(aBuf), "(#%02i) %s: [antispoof=%d] [login=%d] [level=%d] [ip=%s] [version=%s%d] [inf=%d]",
 					i,
 					aBufName,
 					pThis->m_NetServer.HasSecurityToken(i),
 					pThis->IsClientLogged(i),
 					AuthLevel,
 					aAddrStr,
+					pThis->m_aClients[i].m_Sixup ? "0.7:" : "",
 					pThis->m_aClients[i].m_DDNetVersion,
 					pThis->m_aClients[i].m_InfClassVersion
 				);
