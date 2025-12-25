@@ -1999,6 +1999,9 @@ void CIcCharacter::HandleMapMenu()
 	}
 	else
 	{
+		const char *pLanguage = GetPlayer()->GetLanguage();
+		dynamic_string Buffer;
+
 		int HoveredMenuItem = (((float)m_Input.m_TargetY / 41.0f) + ((float)CMapConverter::NUM_MENUCLASS / 2.0f) + 0.4f);
 
 		if (HoveredMenuItem < 0) 
@@ -2035,27 +2038,45 @@ void CIcCharacter::HandleMapMenu()
 					str_format(Reason, sizeof(Reason), "The class limit exceeded");
 					break;
 				}
-			str_format(aBuf, sizeof(aBuf), "Choose your class\n%s\n\n", Reason);
+
+			Server()->Localization()->Format_L(Buffer, pLanguage, _C("mapmenu", "Choose your class"), NULL);
+			Buffer.append("\n");
+			Server()->Localization()->Format_L(Buffer, pLanguage, _C("mapmenu", Reason), NULL);
+			Buffer.append("\n\n");
 
 			for (int i = 0; i < CMapConverter::NUM_MENUCLASS; i++) {
 				EPlayerClass NewClass = CIcGameController::MenuClassToPlayerClass(i);
 				CLASS_AVAILABILITY Availability = GameController()->GetPlayerClassAvailability(NewClass, pPlayer);
-				const char *pClassName = (i == CMapConverter::MENUCLASS_RANDOM ? "Random" : CIcGameController::GetClassDisplayName(NewClass));
+				const char *pClassName = (i == CMapConverter::MENUCLASS_RANDOM ? "Random choice" : CIcGameController::GetClassDisplayName(NewClass));
 
-				str_format(bBuf, sizeof(bBuf), "%s", aBuf);
 				if (i == HoveredMenuItem)
 					if (Availability == CLASS_AVAILABILITY::AVAILABLE || i == CMapConverter::MENUCLASS_RANDOM)
-						str_format(aBuf, sizeof(aBuf), "%s> %s <\n\n", bBuf, pClassName);
+					{
+						Buffer.append("> ");
+						Server()->Localization()->Format_L(Buffer, pLanguage, _C("mapmenu", pClassName), NULL);
+						Buffer.append(" <\n\n");
+					}
 					else
-						str_format(aBuf, sizeof(aBuf), "%s⊗> %s <\n\n", bBuf, pClassName);
+					{
+						Buffer.append("⊗> ");
+						Server()->Localization()->Format_L(Buffer, pLanguage, _C("mapmenu", pClassName), NULL);
+						Buffer.append(" <\n\n");
+					}
 				else
 					if (Availability == CLASS_AVAILABILITY::AVAILABLE || i == CMapConverter::MENUCLASS_RANDOM)
-						str_format(aBuf, sizeof(aBuf), "%s%s\n\n", bBuf, pClassName);
+					{
+						Server()->Localization()->Format_L(Buffer, pLanguage, _C("mapmenu", pClassName), NULL);
+						Buffer.append("\n\n");
+					}
 					else
-						str_format(aBuf, sizeof(aBuf), "%s⊗%s\n\n", bBuf, pClassName);
+					{
+						Buffer.append("⊗ ");
+						Server()->Localization()->Format_L(Buffer, pLanguage, _C("mapmenu", pClassName), NULL);
+						Buffer.append("\n\n");
+					}
 					
 			}
-			GameServer()->SendMOTD(GetCid(), aBuf);
+			GameServer()->SendMOTD(GetCid(), Buffer.buffer());
 		}
 	}
 
