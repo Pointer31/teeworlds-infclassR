@@ -8984,9 +8984,21 @@ void CIcGameController::SendSkin7(int ClientId, int To) {
 		Msg.m_apSkinPartNames[2] = "hair";
 		break;
 	case EPlayerClass::Voodoo:
-		Msg.m_aSkinPartColors[1] = 4282053228;
-		Msg.m_apSkinPartNames[1] = "stripes";
-		break;
+		{
+			CSkinContext SkinContext;
+			pPlayer->GetCharacterClass()->SetupSkinContext(&SkinContext, false); // ForSameTeam needs to be set differently, forced to false for now
+			if (SkinContext.ExtraData1)
+			{
+				Msg.m_aSkinPartColors[0] = 6794805;
+				Msg.m_aSkinPartColors[1] = 4284789363;
+			}
+			else
+			{
+				Msg.m_aSkinPartColors[1] = 4282053228;
+			}
+			Msg.m_apSkinPartNames[1] = "stripes";
+			break;
+		}
 	case EPlayerClass::Witch:
 		Msg.m_aSkinPartColors[0] = 65327;
 		Msg.m_aSkinPartColors[1] = 4278255447;
@@ -9039,6 +9051,4 @@ void CIcGameController::OnPlayerClassChanged(CIcPlayer *pPlayer)
 	}
 
 	Server()->ExpireServerInfo();
-
-	SendSkin7(pPlayer->GetCid());
 }

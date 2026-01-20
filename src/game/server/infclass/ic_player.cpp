@@ -474,6 +474,8 @@ void CIcPlayer::UpdateSkin()
 	const CWeakSkinInfo SkinInfo = GetSkinInfo(SERVER_DEMO_CLIENT);
 	m_TeeInfos = CTeeInfo(SkinInfo.pSkinName, SkinInfo.UseCustomColor, SkinInfo.ColorBody, SkinInfo.ColorFeet);
 	m_TeeInfos.ToSixup();
+
+	GameController()->SendSkin7(GetCid());
 }
 
 void CIcPlayer::StartInfection(int InfectiousPlayerCid, INFECTION_TYPE InfectionType)
