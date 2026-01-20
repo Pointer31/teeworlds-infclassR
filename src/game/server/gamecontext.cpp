@@ -810,7 +810,7 @@ void CGameContext::SendBroadcast_Localization(int To, EBroadcastPriority Priorit
 	int End = (To < 0 ? MAX_CLIENTS : To+1);
 	
 	dynamic_string Buffer;
-	
+
 	va_list VarArgs;
 	va_start(VarArgs, pText);
 	
@@ -823,6 +823,9 @@ void CGameContext::SendBroadcast_Localization(int To, EBroadcastPriority Priorit
 		Server()->SendPackMsg(&Msg, MSGFLAG_VITAL|MSGFLAG_NOSEND, -1);
 	}
 
+	if (Server()->Localization()->m_ArgNumberColor[0] == '\0') // set broadcast number color if not set manually, to a default value (yellow-ish)
+		str_copy(Server()->Localization()->m_ArgNumberColor, "^992");
+
 	for(int i = Start; i < End; i++)
 	{
 		if(m_apPlayers[i] && !m_apPlayers[i]->IsBot())
@@ -832,6 +835,9 @@ void CGameContext::SendBroadcast_Localization(int To, EBroadcastPriority Priorit
 			AddBroadcast(i, Buffer.buffer(), Priority, LifeSpan);
 		}
 	}
+
+	// reset broadcast number color
+	str_copy(Server()->Localization()->m_ArgNumberColor, "\0");
 	
 	va_end(VarArgs);
 }
@@ -845,6 +851,9 @@ void CGameContext::SendBroadcast_Localization_P(int To, EBroadcastPriority Prior
 	
 	va_list VarArgs;
 	va_start(VarArgs, pText);
+
+	if (Server()->Localization()->m_ArgNumberColor[0] == '\0') // set broadcast number color if not set manually, to a default value (yellow-ish)
+		str_copy(Server()->Localization()->m_ArgNumberColor, "^992");
 	
 	for(int i = Start; i < End; i++)
 	{
@@ -854,6 +863,9 @@ void CGameContext::SendBroadcast_Localization_P(int To, EBroadcastPriority Prior
 			AddBroadcast(i, Buffer.buffer(), Priority, LifeSpan);
 		}
 	}
+	
+	// reset broadcast number color
+	str_copy(Server()->Localization()->m_ArgNumberColor, "\0");
 
 	va_end(VarArgs);
 }

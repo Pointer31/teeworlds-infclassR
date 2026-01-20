@@ -146,6 +146,7 @@ public:
 	
 	virtual bool InitConfig(int argc, const char** argv);
 /* BEGIN EDIT *********************************************************/
+	char m_ArgNumberColor[5] = "\0"; // useful for colorizing numbers in broadcasts for 0.7 clients
 /* END EDIT ***********************************************************/
 	virtual bool Init();
 	virtual bool PreUpdate();
