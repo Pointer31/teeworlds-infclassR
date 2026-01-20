@@ -1418,7 +1418,33 @@ void CGameContext::OnTick()
 			)
 			{
 				CNetMsg_Sv_Broadcast Msg;
-				Msg.m_pMessage = m_BroadcastStates[i].m_NextMessage;
+				if (!Server()->IsSixup(i))
+				{
+					// filter out colored broacast substring (^rgb) for non-0.7 clients
+					char aBuf[1024] = "";
+					int indexAbuf = 0;
+					int index = 0;
+					while (m_BroadcastStates[i].m_NextMessage[index] != '\0')
+					{
+						if (m_BroadcastStates[i].m_NextMessage[index] == '^' && m_BroadcastStates[i].m_NextMessage[index+1] != '\0' && m_BroadcastStates[i].m_NextMessage[index+2] != '\0' && m_BroadcastStates[i].m_NextMessage[index+3] != '\0')	
+						{
+							index++; index++; index++; index++;
+						}
+						else
+						{
+							aBuf[indexAbuf] = m_BroadcastStates[i].m_NextMessage[index];
+							indexAbuf++;
+							index++;
+						}
+					}
+					aBuf[indexAbuf] = '\0';
+					Msg.m_pMessage = aBuf;
+					str_copy(m_BroadcastStates[i].m_NextMessage, aBuf, sizeof(m_BroadcastStates[i].m_NextMessage));
+				} 
+				else 
+				{
+					Msg.m_pMessage = m_BroadcastStates[i].m_NextMessage;
+				}
 				Server()->SendPackMsg(&Msg, MSGFLAG_VITAL|MSGFLAG_NORECORD, i);
 				
 				str_copy(m_BroadcastStates[i].m_PrevMessage, m_BroadcastStates[i].m_NextMessage);
