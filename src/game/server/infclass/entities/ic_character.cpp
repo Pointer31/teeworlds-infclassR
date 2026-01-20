@@ -2997,5 +2997,16 @@ void CIcCharacter::UpdateTuningParam()
 		pTuningParams->m_VelrampRange = pTuningParams->m_VelrampRange * Factor;
 	}
 
+	if (GetPlayer() && GetPlayer()->GetAntiPingEnabled())
+	{
+		// fire delay tunes for weapons of classes
+		if (m_ActiveWeapon == WEAPON_GRENADE)
+			pTuningParams->m_GrenadeFireDelay = GameController()->GetFireDelay(GetInfWeaponId(m_ActiveWeapon));
+		else if (m_ActiveWeapon == WEAPON_SHOTGUN)
+			pTuningParams->m_ShotgunFireDelay = GameController()->GetFireDelay(GetInfWeaponId(m_ActiveWeapon));
+		else if (m_ActiveWeapon == WEAPON_LASER)
+			pTuningParams->m_LaserFireDelay = GameController()->GetFireDelay(GetInfWeaponId(m_ActiveWeapon));
+	}
+
 	m_pPlayer->OnTuningChanged();
 }
