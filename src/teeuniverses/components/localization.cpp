@@ -793,16 +793,21 @@ void CLocalization::Format_V(dynamic_string& Buffer, const char* pLanguageCode, 
 						}
 						else if(str_comp_num("int:", pText+ParamTypeStart, 4) == 0)
 						{
+							BufferIter = Buffer.append_at(BufferIter, (const char*) "^992"); // 0.7 broadcast coloring
 							int Number = *((const int*) pVarArgValue);
 							AppendNumber(Buffer, BufferIter, pLanguage, Number);
+							BufferIter = Buffer.append_at(BufferIter, (const char*) "^999"); // 0.7 broadcast coloring (white)
 						}
 						else if(str_comp_num("percent:", pText+ParamTypeStart, 4) == 0)
 						{
+							BufferIter = Buffer.append_at(BufferIter, (const char*) "^992"); // 0.7 broadcast coloring
 							float Number = (*((const float*) pVarArgValue));
 							AppendPercent(Buffer, BufferIter, pLanguage, Number);
+							BufferIter = Buffer.append_at(BufferIter, (const char*) "^999"); // 0.7 broadcast coloring (white)
 						}
 						else if(str_comp_num("sec:", pText+ParamTypeStart, 4) == 0)
 						{
+							BufferIter = Buffer.append_at(BufferIter, (const char*) "^992"); // 0.7 broadcast coloring
 							int Duration = *((const int*) pVarArgValue);
 							int Minutes = Duration / 60;
 							int Seconds = Duration - Minutes*60;
@@ -817,6 +822,7 @@ void CLocalization::Format_V(dynamic_string& Buffer, const char* pLanguageCode, 
 							}
 							else
 								AppendDuration(Buffer, BufferIter, pLanguage, Seconds, icu::TimeUnit::UTIMEUNIT_SECOND);
+							BufferIter = Buffer.append_at(BufferIter, (const char*) "^999"); // 0.7 broadcast coloring (white)
 						}
 						break;
 					}

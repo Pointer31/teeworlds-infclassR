@@ -811,7 +811,12 @@ void CIcPlayer::SendClassIntro()
 	if(!IsBot() && (Class != EPlayerClass::None) && (Class != EPlayerClass::Invalid))
 	{
 		const char *pClassName = CIcGameController::GetClassDisplayName(Class);
-		const char *pTranslated = Server()->Localization()->Localize(GetLanguage(), pClassName);
+		const char *pTranslatedClassName = Server()->Localization()->Localize(GetLanguage(), pClassName);
+		char pTranslated[64];
+		if(IsHuman())
+			str_format(pTranslated, sizeof(pTranslated), "^578%s", pTranslatedClassName);
+		else
+			str_format(pTranslated, sizeof(pTranslated), "^592%s", pTranslatedClassName);
 
 		if(IsHuman())
 			GameServer()->SendBroadcast_Localization(GetCid(), EBroadcastPriority::GAMEANNOUNCE, BROADCAST_DURATION_GAMEANNOUNCE,
