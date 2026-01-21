@@ -2054,26 +2054,27 @@ void CIcCharacter::HandleMapMenu()
 					{
 						Buffer.append("> ");
 						Server()->Localization()->Format_L(Buffer, pLanguage, _C("mapmenu", pClassName), NULL);
-						Buffer.append(" <\n\n");
+						Buffer.append(" <");
 					}
 					else
 					{
 						Buffer.append("⊗> ");
 						Server()->Localization()->Format_L(Buffer, pLanguage, _C("mapmenu", pClassName), NULL);
-						Buffer.append(" <\n\n");
+						Buffer.append(" <");
 					}
 				else
 					if (Availability == CLASS_AVAILABILITY::AVAILABLE || i == CMapConverter::MENUCLASS_RANDOM)
 					{
 						Server()->Localization()->Format_L(Buffer, pLanguage, _C("mapmenu", pClassName), NULL);
-						Buffer.append("\n\n");
 					}
 					else
 					{
 						Buffer.append("⊗ ");
 						Server()->Localization()->Format_L(Buffer, pLanguage, _C("mapmenu", pClassName), NULL);
-						Buffer.append("\n\n");
 					}
+
+				if (i < CMapConverter::NUM_MENUCLASS - 1)
+					Buffer.append("\n\n");	
 					
 			}
 			GameServer()->SendMOTD(GetCid(), Buffer.buffer());
