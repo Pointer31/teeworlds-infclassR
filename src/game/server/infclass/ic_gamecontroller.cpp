@@ -8916,10 +8916,12 @@ void CIcGameController::SendSkin7(int ClientId, int To) {
 		break;
 	case EPlayerClass::Ninja:
 		Msg.m_apSkinPartNames[0] = "standard";
-		Msg.m_aSkinPartColors[0] = 4980736;
-		Msg.m_apSkinPartNames[1] = "coonfluff";
-		Msg.m_aSkinPartColors[1] = 4280868579;
-		Msg.m_aSkinPartColors[4] = 4280868579;
+		Msg.m_aSkinPartColors[0] = 4280868579;
+		Msg.m_apSkinPartNames[1] = "warstripes";
+		Msg.m_aSkinPartColors[1] = -11796281;
+		Msg.m_apSkinPartNames[2] = "twinpen";
+		Msg.m_aSkinPartColors[2] = 4390955;
+		Msg.m_aSkinPartColors[4] = 1900650;
 		break;
 	case EPlayerClass::Sniper:
 		Msg.m_apSkinPartNames[0] = "standard";
