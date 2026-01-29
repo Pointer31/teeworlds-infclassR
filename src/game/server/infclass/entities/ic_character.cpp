@@ -3091,7 +3091,17 @@ void CIcCharacter::UpdateTuningParam()
 		else if (m_ActiveWeapon == WEAPON_SHOTGUN)
 			pTuningParams->m_ShotgunFireDelay = GameController()->GetFireDelay(GetInfWeaponId(m_ActiveWeapon));
 		else if (m_ActiveWeapon == WEAPON_LASER)
+		{
 			pTuningParams->m_LaserFireDelay = GameController()->GetFireDelay(GetInfWeaponId(m_ActiveWeapon));
+			EInfclassWeapon w = GetInfWeaponId(m_ActiveWeapon);
+			if (w == EInfclassWeapon::MERCENARY_UPGRADE_LASER ||
+				w == EInfclassWeapon::EXPLOSIVE_LASER ||
+				w == EInfclassWeapon::BIOLOGIST_MINE_LASER ||
+				w == EInfclassWeapon::BLINDING_LASER )
+			{
+				pTuningParams->m_LaserBounceNum = 0;
+			}
+		}
 	}
 
 	m_pPlayer->OnTuningChanged();
