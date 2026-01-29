@@ -47,7 +47,7 @@ function Get_hero_flag_position(player)
     local suitable_positions = {}
     for i = 1,flag_positions:Size(),1 do
         local position = flag_positions:At(i)
-        if is_flag_position_suitable(position) then
+        if is_position_within_borders(position) then
             table.insert(suitable_positions, position)
         end
     end
