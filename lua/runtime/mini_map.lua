@@ -4,6 +4,8 @@ mini_map_max_players = 8
 mini_map_timelimit = 90
 mini_map_infection_delay = 5
 
+---@param position Vec2
+---@return boolean
 function is_position_within_borders(position)
     if position.x > mini_map_right_border then
         return false
@@ -15,7 +17,7 @@ end
 function mini_layout_set_spawns()
     local human_spawns = Game.Controller:GetHumanSpawns()
 
-    for i = 1,human_spawns:Size() do
+    for i = 1, human_spawns:Size() do
         local position = human_spawns:At(i)
         Game.Controller:SetHumanSpawnEnabled(i, is_position_within_borders(position))
     end
@@ -33,7 +35,8 @@ function mini_layout_validate()
         return
     end
 
-    Game.Context:SendChatTarget(-1, string.format("Too many players for this map layout (%d / %d).", total, mini_map_max_players))
+    Game.Context:SendChatTarget(-1,
+        string.format("Too many players for this map layout (%d / %d).", total, mini_map_max_players))
     Game.Context:SendChatTarget(-1, "The doors have been removed from the map.")
     remove_all_doors()
     mini_map_layout = false
@@ -45,7 +48,7 @@ function Get_hero_flag_position(player)
     local flag_positions = Game.Controller:GetHeroFlagPositions()
 
     local suitable_positions = {}
-    for i = 1,flag_positions:Size(),1 do
+    for i = 1, flag_positions:Size(), 1 do
         local position = flag_positions:At(i)
         if is_flag_position_suitable(position) then
             table.insert(suitable_positions, position)
@@ -57,6 +60,12 @@ function Get_hero_flag_position(player)
     end
 
     return suitable_positions[math.random(1, count)]
+end
+
+---@param position Vec2
+---@return boolean
+function is_flag_position_suitable(position)
+    return is_position_within_borders(position)
 end
 
 function on_mini_map_tick()
