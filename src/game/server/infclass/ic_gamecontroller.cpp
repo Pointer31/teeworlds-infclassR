@@ -6578,7 +6578,10 @@ void CIcGameController::Snap(int SnappingClient)
 		if(!pGameInfoEx)
 			return;
 
-		pGameInfoEx->m_Flags = GAMEINFOFLAG_PREDICT_VANILLA | GAMEINFOFLAG_DONT_MASK_ENTITIES;
+		pGameInfoEx->m_Flags =
+			GAMEINFOFLAG_PREDICT_VANILLA |
+			GAMEINFOFLAG_DONT_MASK_ENTITIES |
+			GAMEINFOFLAG_ALLOW_HOOK_COLL;
 
 		if(InfClassVersion == 0)
 		{
