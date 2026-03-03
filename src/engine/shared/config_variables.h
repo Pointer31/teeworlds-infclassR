@@ -139,6 +139,7 @@ MACRO_CONFIG_INT(SvHideInfo, sv_hide_info, 0, 0, 1, CFGFLAG_SERVER, "Hide the se
 MACRO_CONFIG_INT(SvInfoMaxClients, sv_info_max_clients, -1, -1, 128, CFGFLAG_SERVER, "Limit the server info max clients number (-1 means 'unlimited')")
 MACRO_CONFIG_INT(SvFilterChatCommands, sv_filter_chat_commands, 0, 0, 1, CFGFLAG_SERVER, "Omit from the chat messages starting with ! (like !me and !best)")
 MACRO_CONFIG_INT(SvSuggestMoreRounds, sv_suggest_more_rounds, 0, 0, 100, CFGFLAG_SERVER, "The number of extra rounds to be played on the suggestion (vote) accepted")
+MACRO_CONFIG_INT(SvSuggestMoreRoundsLimit, sv_suggest_more_rounds_limit, 2, 0, 100, CFGFLAG_SERVER, "The limit of extra rounds votes to be allowed per map (0=no limit)")
 MACRO_CONFIG_STR(SvChangeLogFile, sv_changelog_file, 128, "ChangeLog.txt", CFGFLAG_SERVER, "File with changelog entities")
 MACRO_CONFIG_INT(SvChangeLogMaxLinesPerPage, sv_changelog_lines_page, 6, 1, 64, CFGFLAG_SERVER, "File with changelog entities")
 
