@@ -592,6 +592,7 @@ private:
 	FunRoundConfiguration m_FunRoundConfiguration;
 	std::vector<FunRoundConfiguration> m_FunRoundConfigurations;
 	int m_FunRoundsPassed = 0;
+	int m_SuggestMoreRoundsVotesPassed = 0;
 
 	bool m_HsFastRound = false;
 

@@ -3999,6 +3999,9 @@ void CIcGameController::MaybeSuggestMoreRounds()
 	if(Config()->m_InfSurvivalMode)
 		return;
 
+	if(Config()->m_SvSuggestMoreRoundsLimit >= 1 && m_SuggestMoreRoundsVotesPassed >= Config()->m_SvSuggestMoreRoundsLimit)
+		return;
+
 	m_SuggestMoreRounds = true;
 }
 
@@ -5207,6 +5210,7 @@ void CIcGameController::Tick()
 
 		m_SuggestMoreRounds = false;
 		m_MoreRoundsSuggested = true;
+		m_SuggestMoreRoundsVotesPassed++;
 	}
 
 	if(NumPlayers)
