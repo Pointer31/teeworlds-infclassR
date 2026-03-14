@@ -7195,7 +7195,7 @@ void CIcGameController::OnIcCharacterDeath(CIcCharacter *pVictim, DeathContext *
 		if(pVictim->IsHuman())
 		{
 			const CIcPlayer *pKiller = GetPlayer(pContext->Killer);
-			if(pKiller && pKiller->IsInfected() && pKiller->GetCharacter())
+			if(pKiller && pKiller->IsInfected() && pKiller->GetCharacter() && DamageType != EDamageType::INFECTION_TILE)
 			{
 				pVictim->GetPlayer()->SetSpecialCameraTargetCid(pKiller->GetCid(), 5.0);
 			}
