@@ -2237,14 +2237,30 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 	{
 		if(Msg == NETMSGTYPE_CL_LANGUAGE)
 		{
-			const char *pLang = Unpacker.GetString(CUnpacker::SANITIZE_CC);
-			if(!str_utf8_check(pLang))
+			const char *pLanguageCode = Unpacker.GetString(CUnpacker::SANITIZE_CC);
+			char aFinalLanguageCode[8];
+			aFinalLanguageCode[0] = 0;
+
+			if(pLanguageCode)
 			{
-				return;
+				if(str_comp_nocase(pLanguageCode, "ua") == 0)
+					str_copy(aFinalLanguageCode, "uk");
+				else
+				{
+					for(int i=0; i<Localization()->m_pLanguages.size(); i++)
+					{
+						if(str_comp_nocase(pLanguageCode, Localization()->m_pLanguages[i]->GetFilename()) == 0)
+							str_copy(aFinalLanguageCode, pLanguageCode);
+					}
+				}
 			}
-			str_copy(m_aClients[ClientId].m_aLanguage, pLang, sizeof(m_aClients[ClientId].m_aLanguage));
-			dbg_msg("lang", "init_language ClientId=%d, lang from msg: \"%s\"", ClientId, pLang);
-			SetClientMemory(ClientId, CLIENTMEMORY_LANGUAGESELECTION, true);
+			
+			if(aFinalLanguageCode[0])
+			{
+				dbg_msg("lang", "init_language ClientId=%d, lang from msg: \"%s\"", ClientId, pLang);
+				SetClientLanguage(ClientId, aFinalLanguageCode);
+				SetClientMemory(ClientId, CLIENTMEMORY_LANGUAGESELECTION, true);
+			}
 		}
 	}
 }
