@@ -2233,6 +2233,36 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 		// game message
 		GameServer()->OnMessage(Msg, &Unpacker, ClientId);
 	}
+	else if (pPacket->m_Flags & NET_CHUNKFLAG_VITAL != 0)
+	{
+		if(Msg == NETMSGTYPE_CL_LANGUAGE)
+		{
+			const char *pLanguageCode = Unpacker.GetString(CUnpacker::SANITIZE_CC);
+			char aFinalLanguageCode[8];
+			aFinalLanguageCode[0] = 0;
+
+			if(pLanguageCode)
+			{
+				if(str_comp_nocase(pLanguageCode, "ua") == 0)
+					str_copy(aFinalLanguageCode, "uk");
+				else
+				{
+					for(int i=0; i<Localization()->m_pLanguages.size(); i++)
+					{
+						if(str_comp_nocase(pLanguageCode, Localization()->m_pLanguages[i]->GetFilename()) == 0)
+							str_copy(aFinalLanguageCode, pLanguageCode);
+					}
+				}
+			}
+			
+			if(aFinalLanguageCode[0])
+			{
+				dbg_msg("lang", "init_language ClientId=%d, lang from msg: \"%s\"", ClientId, pLang);
+				SetClientLanguage(ClientId, aFinalLanguageCode);
+				SetClientMemory(ClientId, CLIENTMEMORY_LANGUAGESELECTION, true);
+			}
+		}
+	}
 }
 
 bool CServer::RateLimitServerInfoConnless()

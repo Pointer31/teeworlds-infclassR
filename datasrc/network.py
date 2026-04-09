@@ -583,6 +583,10 @@ Messages = [
 		NetIntAny("m_Test"),
 	]),
 
+	NetMessageEx("Cl_Language", "language@ddnet-community.github.io", [
+		NetStringStrict("m_pLanguage"),
+	]),
+
 	NetMessageEx("Inf_KillMsg", "kill-ex1@infclass", [
 		NetIntRange("m_Victim", 0, 'MAX_CLIENTS-1'),
 		NetIntRange("m_Killer", -1, 'MAX_CLIENTS-1'),
