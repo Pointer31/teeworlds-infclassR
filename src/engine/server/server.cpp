@@ -2257,7 +2257,7 @@ void CServer::ProcessClientPacket(CNetChunk *pPacket)
 			
 			if(aFinalLanguageCode[0])
 			{
-				dbg_msg("lang", "init_language ClientId=%d, lang from msg: \"%s\"", ClientId, pLang);
+				dbg_msg("lang", "init_language ClientId=%d, lang from msg: \"%s\"", ClientId, aFinalLanguageCode);
 				SetClientLanguage(ClientId, aFinalLanguageCode);
 				SetClientMemory(ClientId, CLIENTMEMORY_LANGUAGESELECTION, true);
 			}
