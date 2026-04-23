@@ -221,6 +221,22 @@ void CIcPlayer::Snap(int SnappingClient)
 		pSpectatorInfo->m_X = m_ViewPos.x;
 		pSpectatorInfo->m_Y = m_ViewPos.y;
 	}
+
+	// respawn timer modification
+	if(m_ClientId == SnappingClient)
+	{
+		int TicksLeft = m_RespawnTick - Server()->Tick();
+
+		if (!m_pCharacter && m_Team != TEAM_SPECTATORS)
+		{
+			CNetObj_RespawnTimer *pRespawnTimer = static_cast<CNetObj_RespawnTimer *>(Server()->SnapNewItem(NETOBJTYPE_RESPAWNTIMER, m_ClientId, sizeof(CNetObj_RespawnTimer)));
+			if(!pRespawnTimer)
+				return;
+
+			// todo: maybe send -1 in survival rounds while dead instead of sending no timer object at all
+			pRespawnTimer->m_TicksLeft = std::max(0, TicksLeft);
+		}
+	}
 }
 
 void CIcPlayer::SnapClientInfo(int SnappingClient, int SnappingClientMappedId)

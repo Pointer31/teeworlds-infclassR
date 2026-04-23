@@ -252,6 +252,10 @@ Objects = [
 		NetIntAny("m_Test"),
 	]),
 
+	NetObjectEx("RespawnTimer", "respawn-timer@ddnet-community.github.io", [
+		NetIntAny("m_TicksLeft"),
+	]),
+
 	NetObjectEx("InfClassObject", "object@infclass", [
 		NetIntAny("m_Flags", 0),
 		NetIntRange("m_Owner", -1, 'MAX_CLIENTS-1', -1),
